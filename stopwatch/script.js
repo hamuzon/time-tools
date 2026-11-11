@@ -44,6 +44,7 @@ const lapCount = document.getElementById('lap-count');
 const resetButton = document.getElementById('stopwatch-reset');
 let elapsedMs = 0;
 let startedAt = 0;
+let performanceStartedAt = 0;
 let intervalId = null;
 let previousLapMs = 0;
 let laps = [];
@@ -79,15 +80,19 @@ function restoreState() {
     if (!Number.isFinite(state.elapsedMs) || state.elapsedMs < 0 ||
         !Number.isFinite(state.previousLapMs) || state.previousLapMs < 0 ||
         typeof state.running !== 'boolean' || !Array.isArray(state.laps) ||
+        (state.running && (!Number.isFinite(state.startedAt) || state.startedAt <= 0)) ||
         !state.laps.every((lap) => Number.isInteger(lap.number) && lap.number > 0 &&
           Number.isFinite(lap.split) && lap.split >= 0 && Number.isFinite(lap.total) && lap.total >= 0)) {
       throw new Error('Saved stopwatch state is invalid.');
     }
 
     elapsedMs = state.running && Number.isFinite(state.startedAt)
-      ? Math.max(0, Date.now() - state.startedAt)
+      ? Math.max(state.elapsedMs, Date.now() - state.startedAt)
       : state.elapsedMs;
     startedAt = state.running && Number.isFinite(state.startedAt) ? state.startedAt : 0;
+    performanceStartedAt = state.running
+      ? performance.now() - elapsedMs
+      : 0;
     previousLapMs = state.previousLapMs;
     laps = state.laps;
     if (state.running && startedAt > 0) {
@@ -136,7 +141,7 @@ function updateControlStyles() {
 }
 
 function tick() {
-  elapsedMs = Math.max(0, Date.now() - startedAt);
+  elapsedMs = Math.max(0, performance.now() - performanceStartedAt);
   updateDisplay();
 }
 
@@ -154,6 +159,7 @@ function setLanguage() {
 function startStopwatch() {
   if (intervalId !== null) return;
   startedAt = Date.now() - elapsedMs;
+  performanceStartedAt = performance.now() - elapsedMs;
   startButton.textContent = translations[language].pause;
   startButton.classList.add('is-running');
   startButton.setAttribute('aria-pressed', 'true');
@@ -170,6 +176,7 @@ function pauseStopwatch() {
   tick();
   window.clearInterval(intervalId);
   intervalId = null;
+  performanceStartedAt = 0;
   startButton.textContent = translations[language].resume;
   startButton.classList.remove('is-running');
   startButton.setAttribute('aria-pressed', 'false');
@@ -199,6 +206,7 @@ function resetStopwatch() {
   }
   elapsedMs = 0;
   startedAt = 0;
+  performanceStartedAt = 0;
   previousLapMs = 0;
   laps = [];
   updateDisplay();

@@ -101,6 +101,7 @@ alarmAudio.preload = 'auto';
 let durationMs = 0;
 let remainingMs = durationMs;
 let deadline = 0;
+let performanceDeadline = 0;
 
 let intervalId = null;
 
@@ -226,7 +227,8 @@ function restoreState() {
       !Number.isFinite(state.remainingMs) ||
       state.remainingMs < 0 ||
       state.remainingMs > MAX_DURATION_MS ||
-      typeof state.running !== 'boolean'
+      typeof state.running !== 'boolean' ||
+      (state.running && (!Number.isFinite(state.deadline) || state.deadline <= 0))
     ) {
       throw new Error('Saved timer state is invalid.');
     }
@@ -239,6 +241,9 @@ function restoreState() {
 
     deadline = Number.isFinite(state.deadline)
       ? state.deadline
+      : 0;
+    performanceDeadline = state.running
+      ? performance.now() + remainingMs
       : 0;
 
     paused = !state.running && state.paused === true;
@@ -327,6 +332,8 @@ function updateInputDuration() {
   durationMs = getInputDurationSeconds() * 1000;
 
   remainingMs = durationMs;
+  deadline = 0;
+  performanceDeadline = 0;
 
   paused = false;
   completed = false;
@@ -407,10 +414,7 @@ function setCompletedControls(isCompleted) {
 
 
 function tick() {
-  remainingMs = Math.max(
-    0,
-    deadline - Date.now()
-  );
+  remainingMs = Math.max(0, performanceDeadline - performance.now());
 
   if (remainingMs === 0) {
     stopInterval();
@@ -562,6 +566,7 @@ function startTimer() {
   completed = false;
 
   deadline = Date.now() + remainingMs;
+  performanceDeadline = performance.now() + remainingMs;
 
   setRunning(true);
 
@@ -630,6 +635,7 @@ function resetTimer() {
   durationMs = 0;
   remainingMs = 0;
   deadline = 0;
+  performanceDeadline = 0;
 
   alarmAudio.pause();
 
