@@ -383,6 +383,7 @@ function setRunning(isRunning) {
   hoursInput.disabled = isRunning;
   minutesInput.disabled = isRunning;
   secondsInput.disabled = isRunning;
+  resetButton.disabled = isRunning;
 
   document.querySelectorAll('.preset-button').forEach((button) => {
     button.disabled = isRunning;
