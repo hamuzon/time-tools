@@ -7,7 +7,10 @@ const translations = {
     lap: 'ラップ',
     reset: 'リセット',
     laps: 'ラップ',
-    lapLabel: 'ラップ'
+    lapLabel: 'ラップ',
+    lapColumn: 'ラップ',
+    splitColumn: 'ラップ時間',
+    totalColumn: '合計時間'
   },
   en: {
     title: 'Stopwatch',
@@ -17,7 +20,10 @@ const translations = {
     lap: 'Lap',
     reset: 'Reset',
     laps: 'Laps',
-    lapLabel: 'Lap'
+    lapLabel: 'Lap',
+    lapColumn: 'Lap',
+    splitColumn: 'Lap time',
+    totalColumn: 'Total time'
   }
 };
 
