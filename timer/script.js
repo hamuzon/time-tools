@@ -89,6 +89,7 @@ const status = document.getElementById('timer-status');
 
 const startButton = document.getElementById('timer-start');
 const pauseButton = document.getElementById('timer-pause');
+const resetButton = document.getElementById('timer-reset');
 
 const soundSelect = document.getElementById('timer-sound');
 const displayFormatSelect = document.getElementById('timer-display-format');
@@ -631,12 +632,17 @@ function resetTimer() {
   remainingMs = 0;
   deadline = 0;
 
+  alarmAudio.pause();
+
+  try {
+    alarmAudio.currentTime = 0;
+  } catch (error) {
+    console.warn('Could not reset alarm audio.', error);
+  }
+
   hoursInput.value = '0';
   minutesInput.value = '0';
   secondsInput.value = '0';
-
-  alarmAudio.pause();
-  alarmAudio.currentTime = 0;
 
   setRunning(false);
 
@@ -647,7 +653,6 @@ function resetTimer() {
   document.title = `${translations[language].title} | Time Tools`;
 
   updateDisplay();
-
   saveState();
 }
 
@@ -676,6 +681,7 @@ function setLanguage() {
   ];
 
   pauseButton.textContent = translations[language].pause;
+  resetButton.textContent = translations[language].reset;
 
   document.querySelectorAll('#timer-sound option[data-i18n]').forEach((option) => {
     option.textContent = translations[language][option.dataset.i18n];
@@ -740,9 +746,10 @@ secondsInput.addEventListener('blur', readInputs);
 startButton.addEventListener('click', startTimer);
 pauseButton.addEventListener('click', pauseTimer);
 
-document
-  .getElementById('timer-reset')
-  .addEventListener('click', resetTimer);
+resetButton.addEventListener('click', (event) => {
+  event.preventDefault();
+  resetTimer();
+});
 
 soundSelect.addEventListener('change', () => {
   setAlarmSound(soundSelect.value);
