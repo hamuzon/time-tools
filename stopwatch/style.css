@@ -444,6 +444,29 @@ input:focus-visible {
   margin: 0;
   padding: 0 3px 0 0;
   list-style: none;
+  scrollbar-color: rgba(109, 63, 192, 0.42) rgba(109, 63, 192, 0.08);
+  scrollbar-width: thin;
+}
+
+.lap-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.lap-list::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(109, 63, 192, 0.08);
+}
+
+.lap-list::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(109, 63, 192, 0.42);
+  background-clip: padding-box;
+}
+
+.lap-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(109, 63, 192, 0.65);
+  background-clip: padding-box;
 }
 
 .empty-laps,

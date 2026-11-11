@@ -35,6 +35,13 @@
                 <option value="on" data-i18n="soundOn">オン</option>
               </select>
             </label>
+            <label class="sound-setting" for="timer-display-format">
+              <span data-i18n="displayFormat">時間の表示</span>
+              <select id="timer-display-format">
+                <option value="clock" data-i18n="displayClock">00:00:00</option>
+                <option value="units" data-i18n="displayUnits">時・分・秒</option>
+              </select>
+            </label>
             <a class="license-card" href="https://soundeffect-lab.info/" target="_blank" rel="noopener noreferrer">
               <span class="license-label" data-i18n="license">ライセンス</span>
               <span class="license-title" data-i18n="licenseDescription">効果音ラボ</span>
@@ -55,8 +62,13 @@
         </div>
         <div class="time-inputs">
           <label class="time-field">
+            <span data-i18n="hours">時</span>
+            <input id="timer-hours" type="number" min="0" max="99" inputmode="numeric" value="0" />
+          </label>
+          <span class="time-separator" aria-hidden="true">:</span>
+          <label class="time-field">
             <span data-i18n="minutes">分</span>
-            <input id="timer-minutes" type="number" min="0" max="99" inputmode="numeric" value="0" />
+            <input id="timer-minutes" type="number" min="-59" inputmode="numeric" value="0" />
           </label>
           <span class="time-separator" aria-hidden="true">:</span>
           <label class="time-field">

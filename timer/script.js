@@ -1,6 +1,7 @@
 const translations = {
   ja: {
     title: 'タイマー',
+    hours: '時',
     minutes: '分',
     seconds: '秒',
     start: 'スタート',
@@ -19,6 +20,9 @@ const translations = {
     alarmSound: '終了時の音',
     soundOff: 'オフ',
     soundOn: 'オン',
+    displayFormat: '時間の表示',
+    displayClock: '00:00:00形式',
+    displayUnits: '時・分・秒',
     license: 'ライセンス',
     licenseDescription: '効果音ラボ',
     setTime: '時間を設定してください',
@@ -26,6 +30,7 @@ const translations = {
   },
   en: {
     title: 'Timer',
+    hours: 'Hours',
     minutes: 'Minutes',
     seconds: 'Seconds',
     start: 'Start',
@@ -44,6 +49,9 @@ const translations = {
     alarmSound: 'Alarm sound',
     soundOff: 'Off',
     soundOn: 'On',
+    displayFormat: 'Time display',
+    displayClock: '00:00:00 format',
+    displayUnits: 'Hours / minutes / seconds',
     license: 'License',
     licenseDescription: 'Sound Effect Lab',
     setTime: 'Set a duration to start',
@@ -52,7 +60,7 @@ const translations = {
 };
 
 const STORAGE_KEY = 'time-tools-timer-state-v1';
-const MAX_DURATION_MS = (99 * 60 + 59) * 1000;
+const MAX_DURATION_MS = (99 * 60 * 60 + 59 * 60 + 59) * 1000;
 const languageUrl = new URL(window.location.href);
 const languageParameter = languageUrl.searchParams.get('lang');
 const language = languageParameter === 'en' ? 'en' : 'ja';
@@ -63,12 +71,14 @@ if (languageParameter !== null && language !== 'en') {
 document.documentElement.lang = language;
 const display = document.getElementById('timer-display');
 const toolPanel = document.querySelector('.timer-page .tool-panel');
+const hoursInput = document.getElementById('timer-hours');
 const minutesInput = document.getElementById('timer-minutes');
 const secondsInput = document.getElementById('timer-seconds');
 const status = document.getElementById('timer-status');
 const startButton = document.getElementById('timer-start');
 const pauseButton = document.getElementById('timer-pause');
 const soundSelect = document.getElementById('timer-sound');
+const displayFormatSelect = document.getElementById('timer-display-format');
 const settingsToggle = document.getElementById('settings-toggle');
 const settingsPanel = document.getElementById('timer-settings-panel');
 const alarmAudio = new Audio('hatodokei1.mp3');
@@ -80,10 +90,58 @@ let intervalId = null;
 let paused = false;
 let completed = false;
 let alarmSound = new URLSearchParams(window.location.search).get('alarm') === 'on' ? 'on' : 'off';
+let displayFormat = new URLSearchParams(window.location.search).get('format') === 'units' ? 'units' : 'clock';
 
 function formatTime(milliseconds) {
   const totalSeconds = Math.ceil(Math.max(0, milliseconds) / 1000);
-  return `${String(Math.floor(totalSeconds / 60)).padStart(2, '0')}:${String(totalSeconds % 60).padStart(2, '0')}`;
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor(totalSeconds / 60) % 60;
+  const seconds = totalSeconds % 60;
+  return [hours, minutes, seconds]
+    .map((part) => String(part).padStart(2, '0'))
+    .join(':');
+}
+
+function formatDurationLabel(milliseconds) {
+  let totalSeconds = Math.ceil(Math.max(0, milliseconds) / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  totalSeconds %= 3600;
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  if (language === 'en') {
+    return [
+      hours ? `${hours} hour${hours === 1 ? '' : 's'}` : '',
+      minutes ? `${minutes} min` : '',
+      seconds ? `${seconds} sec` : ''
+    ].filter(Boolean).join(' ') || '0 sec';
+  }
+
+  return [
+    hours ? `${hours}時間` : '',
+    minutes ? `${minutes}分` : '',
+    seconds ? `${seconds}秒` : ''
+  ].filter(Boolean).join('') || '0秒';
+}
+
+function updateRunningTitle() {
+  const remainingLabel = displayFormat === 'units'
+    ? formatDurationLabel(remainingMs)
+    : formatTime(remainingMs);
+  const durationLabel = formatDurationLabel(durationMs);
+  const title = language === 'en'
+    ? `${remainingLabel} ${durationLabel} Timer | Time Tools`
+    : `${remainingLabel} ${durationLabel}タイマー | Time Tools`;
+  if (document.title !== title) document.title = title;
+}
+
+function updateUrl(url) {
+  const lang = url.searchParams.get('lang');
+  if (lang !== null) {
+    url.searchParams.delete('lang');
+    url.searchParams.append('lang', lang);
+  }
+  window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
 }
 
 function saveState() {
@@ -120,8 +178,10 @@ function restoreState() {
     paused = !state.running && state.paused === true;
     completed = state.completed === true || (state.running && remainingMs === 0);
 
-    minutesInput.value = String(Math.floor(durationMs / 60_000));
-    secondsInput.value = String(Math.floor(durationMs / 1000) % 60);
+    const totalSeconds = durationMs / 1000;
+    hoursInput.value = String(Math.floor(totalSeconds / 3600));
+    minutesInput.value = String(Math.floor(totalSeconds / 60) % 60);
+    secondsInput.value = String(totalSeconds % 60);
   } catch (error) {
     console.warn('Could not restore timer state.', error);
     try {
@@ -133,14 +193,37 @@ function restoreState() {
 }
 
 function updateDisplay() {
-  display.textContent = formatTime(remainingMs);
+  const totalSeconds = Math.ceil(Math.max(0, remainingMs) / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor(totalSeconds / 60) % 60;
+  const seconds = totalSeconds % 60;
+  if (displayFormat === 'units') {
+    const formattedTime = formatDurationLabel(remainingMs);
+    if (display.textContent !== formattedTime) display.textContent = formattedTime;
+    delete display.dataset.formattedTime;
+    display.classList.add('is-units');
+  } else {
+    const formattedTime = [hours, minutes, seconds]
+      .map((part) => String(part).padStart(2, '0'))
+      .join('<span class="time-colon" aria-hidden="true">:</span>');
+    if (display.dataset.formattedTime !== formattedTime) {
+      display.innerHTML = formattedTime;
+      display.dataset.formattedTime = formattedTime;
+    }
+    display.classList.remove('is-units');
+  }
+  display.setAttribute('aria-label', formatTime(remainingMs));
   toolPanel.classList.toggle('is-complete', completed);
 }
 
 function getInputDurationSeconds() {
   return Math.min(
     MAX_DURATION_MS / 1000,
-    Math.max(0, (Number(minutesInput.value) || 0) * 60 + (Number(secondsInput.value) || 0))
+    Math.max(0,
+      (Number(hoursInput.value) || 0) * 3600 +
+      (Number(minutesInput.value) || 0) * 60 +
+      (Number(secondsInput.value) || 0)
+    )
   );
 }
 
@@ -156,11 +239,12 @@ function updateInputDuration() {
 
 function readInputs() {
   updateInputDuration();
-  const totalSeconds = durationMs / 1000;
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  minutesInput.value = String(minutes);
-  secondsInput.value = String(seconds);
+  let totalSeconds = durationMs / 1000;
+  const hours = Math.floor(totalSeconds / 3600);
+  totalSeconds %= 3600;
+  hoursInput.value = String(hours);
+  minutesInput.value = String(Math.floor(totalSeconds / 60));
+  secondsInput.value = String(totalSeconds % 60);
 }
 
 function stopInterval() {
@@ -171,10 +255,12 @@ function stopInterval() {
 }
 
 function setRunning(isRunning) {
+  toolPanel.classList.toggle('is-running', isRunning);
   startButton.hidden = isRunning;
   pauseButton.hidden = !isRunning;
   pauseButton.disabled = !isRunning;
   pauseButton.setAttribute('aria-pressed', String(isRunning));
+  hoursInput.disabled = isRunning;
   minutesInput.disabled = isRunning;
   secondsInput.disabled = isRunning;
   document.querySelectorAll('.preset-button').forEach((button) => {
@@ -202,6 +288,8 @@ function tick() {
     document.title = `${translations[language].title} | Time Tools`;
     saveState();
     playAlarm();
+  } else {
+    updateRunningTitle();
   }
   updateDisplay();
 }
@@ -239,7 +327,18 @@ function setAlarmSound(value) {
   const url = new URL(window.location.href);
   if (alarmSound === 'off') url.searchParams.delete('alarm');
   else url.searchParams.set('alarm', 'on');
-  window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+  updateUrl(url);
+}
+
+function setDisplayFormat(value) {
+  displayFormat = value === 'units' ? 'units' : 'clock';
+  displayFormatSelect.value = displayFormat;
+  const url = new URL(window.location.href);
+  if (displayFormat === 'clock') url.searchParams.delete('format');
+  else url.searchParams.set('format', displayFormat);
+  updateUrl(url);
+  updateDisplay();
+  if (intervalId !== null) updateRunningTitle();
 }
 
 function toggleSettings() {
@@ -267,10 +366,11 @@ function startTimer() {
   deadline = Date.now() + remainingMs;
   setRunning(true);
   status.textContent = '';
-  document.title = `${formatTime(remainingMs)} | ${translations[language].title}`;
+  updateRunningTitle();
   tick();
   if (remainingMs > 0) {
     intervalId = window.setInterval(tick, 100);
+    updateDisplay();
     saveState();
   }
 }
@@ -293,8 +393,8 @@ function pauseTimer() {
   stopInterval();
   paused = true;
   setRunning(false);
+  updateDisplay();
   startButton.textContent = translations[language].resume;
-  document.title = `${translations[language].title} | Time Tools`;
   saveState();
 }
 
@@ -323,7 +423,12 @@ function setLanguage() {
   document.querySelectorAll('#timer-sound option[data-i18n]').forEach((option) => {
     option.textContent = translations[language][option.dataset.i18n];
   });
-  document.title = `${translations[language].title} | Time Tools`;
+  document.querySelectorAll('#timer-display-format option[data-i18n]').forEach((option) => {
+    option.textContent = translations[language][option.dataset.i18n];
+  });
+  updateDisplay();
+  if (intervalId !== null) updateRunningTitle();
+  else document.title = `${translations[language].title} | Time Tools`;
 }
 
 document.querySelectorAll('.preset-button').forEach((button) => {
@@ -332,22 +437,27 @@ document.querySelectorAll('.preset-button').forEach((button) => {
     paused = false;
     completed = false;
     const seconds = Number(button.dataset.seconds);
+    hoursInput.value = '0';
     minutesInput.value = String(Math.floor(seconds / 60));
     secondsInput.value = String(seconds % 60);
     readInputs();
     setRunning(false);
   });
 });
+hoursInput.addEventListener('input', updateInputDuration);
 minutesInput.addEventListener('input', updateInputDuration);
 secondsInput.addEventListener('input', updateInputDuration);
+hoursInput.addEventListener('change', readInputs);
 minutesInput.addEventListener('change', readInputs);
 secondsInput.addEventListener('change', readInputs);
+hoursInput.addEventListener('blur', readInputs);
 minutesInput.addEventListener('blur', readInputs);
 secondsInput.addEventListener('blur', readInputs);
 startButton.addEventListener('click', startTimer);
 pauseButton.addEventListener('click', pauseTimer);
 document.getElementById('timer-reset').addEventListener('click', resetTimer);
 soundSelect.addEventListener('change', () => setAlarmSound(soundSelect.value));
+displayFormatSelect.addEventListener('change', () => setDisplayFormat(displayFormatSelect.value));
 settingsToggle.addEventListener('click', toggleSettings);
 document.addEventListener('click', closeSettingsOnOutsideClick);
 document.addEventListener('keydown', (event) => {
@@ -360,6 +470,7 @@ document.addEventListener('keydown', (event) => {
 restoreState();
 setLanguage();
 setAlarmSound(alarmSound);
+setDisplayFormat(displayFormat);
 updateDisplay();
 setRunning(false);
 if (completed) {
