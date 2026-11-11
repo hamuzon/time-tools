@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#d8b8ef" />
+    <title>タイマー | Time Tools</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="aurora-background" aria-hidden="true"></div>
+    <main class="page-shell app-page timer-page">
+      <section class="tool-panel" aria-labelledby="page-title">
+        <div class="timer-settings">
+          <button
+            class="settings-button"
+            id="settings-toggle"
+            type="button"
+            aria-label="設定"
+            aria-controls="timer-settings-panel"
+            aria-expanded="false"
+            data-i18n-aria="settings"
+          >
+            <span class="material-symbols-rounded" aria-hidden="true">settings</span>
+          </button>
+          <div class="settings-panel" id="timer-settings-panel" hidden>
+            <label class="sound-setting" for="timer-sound">
+              <span data-i18n="alarmSound">終了音</span>
+              <select id="timer-sound">
+                <option value="off" data-i18n="soundOff">オフ</option>
+                <option value="on" data-i18n="soundOn">オン</option>
+              </select>
+            </label>
+            <a class="license-card" href="https://soundeffect-lab.info/agreement/" target="_blank" rel="noopener noreferrer">
+              <span class="license-label" data-i18n="license">License</span>
+              <span class="license-title" data-i18n="licenseDescription">効果音ラボ 音声利用規約</span>
+              <span class="material-symbols-rounded license-icon" aria-hidden="true">open_in_new</span>
+            </a>
+          </div>
+        </div>
+        <h1 id="page-title" class="tool-title" data-i18n="title">タイマー</h1>
+        <div class="timer-display" id="timer-display" role="timer" aria-live="off">00:30</div>
+        <div class="preset-list" aria-label="タイマーの時間" data-i18n-aria="presetsLabel">
+          <button class="preset-button" type="button" data-seconds="60" data-i18n="preset1">1分</button>
+          <button class="preset-button" type="button" data-seconds="300" data-i18n="preset5">5分</button>
+          <button class="preset-button" type="button" data-seconds="600" data-i18n="preset10">10分</button>
+          <button class="preset-button" type="button" data-seconds="1500" data-i18n="preset25">25分</button>
+        </div>
+        <div class="time-inputs">
+          <label class="time-field">
+            <span data-i18n="minutes">分</span>
+            <input id="timer-minutes" type="number" min="0" max="99" inputmode="numeric" value="0" />
+          </label>
+          <span class="time-separator" aria-hidden="true">:</span>
+          <label class="time-field">
+            <span data-i18n="seconds">秒</span>
+            <input id="timer-seconds" type="number" min="0" max="59" inputmode="numeric" value="30" />
+          </label>
+        </div>
+        <div class="control-row">
+          <button class="control-button primary-button" id="timer-start" type="button" data-i18n="start">スタート</button>
+          <button class="control-button danger-button" id="timer-pause" type="button" data-i18n="pause">一時停止</button>
+          <button class="control-button quiet-button" id="timer-reset" type="button" data-i18n="reset">リセット</button>
+        </div>
+        <p class="status-message" id="timer-status" role="status" aria-live="polite"></p>
+      </section>
+      <footer class="sound-credit"><span data-i18n="soundCredit">効果音：効果音ラボ</span> <a href="https://soundeffect-lab.info/" target="_blank" rel="noopener noreferrer" data-i18n="sourceLink">公式サイト</a></footer>
+      <footer class="copyright app-copyright">
+        <div id="footer-copy"></div>
+      </footer>
+    </main>
+  </body>
+</html>

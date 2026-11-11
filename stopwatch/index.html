@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#d8b8ef" />
+    <title>ストップウォッチ | Time Tools</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="aurora-background" aria-hidden="true"></div>
+    <main class="page-shell app-page stopwatch-page">
+      <section class="tool-panel" aria-labelledby="page-title">
+        <h1 id="page-title" class="tool-title" data-i18n="title">ストップウォッチ</h1>
+        <div class="stopwatch-display" id="stopwatch-display" role="timer" aria-live="off">00:00:00.0</div>
+        <div class="control-row stopwatch-controls">
+          <button class="control-button primary-button" id="stopwatch-start" type="button" data-i18n="start">スタート</button>
+          <button class="control-button lap-button" id="stopwatch-lap" type="button" data-i18n="lap" disabled>ラップ</button>
+          <button class="control-button quiet-button" id="stopwatch-reset" type="button" data-i18n="reset" disabled>リセット</button>
+        </div>
+        <section class="laps-section" aria-labelledby="laps-title">
+          <div class="laps-heading">
+            <h2 id="laps-title" data-i18n="laps">ラップ</h2>
+            <span id="lap-count" class="lap-count">0</span>
+          </div>
+          <ol class="lap-list" id="lap-list"></ol>
+        </section>
+      </section>
+      <footer class="copyright app-copyright">
+        <div id="footer-copy"></div>
+      </footer>
+    </main>
+  </body>
+</html>
