@@ -4,37 +4,40 @@ const translations = {
     minutes: '分',
     seconds: '秒',
     start: 'スタート',
-    pause: '一時停止',
-    resume: '再開',
+    pause: 'ストップ',
+    resume: 'スタート',
     reset: 'リセット',
     settings: '設定',
     presetsLabel: 'タイマーの時間',
+    preset10s: '10秒',
+    preset30s: '30秒',
     preset1: '1分',
+    preset3: '3分',
     preset5: '5分',
     preset10: '10分',
     preset25: '25分',
-    alarmSound: '終了音',
+    alarmSound: '終了時の音',
     soundOff: 'オフ',
     soundOn: 'オン',
-    license: 'License',
-    licenseDescription: '効果音ラボ 音声利用規約',
-    complete: '時間になりました！',
+    license: 'ライセンス',
+    licenseDescription: '効果音ラボ',
     setTime: '時間を設定してください',
-    soundError: '終了音を再生できませんでした。端末の音量をご確認ください。',
-    soundCredit: '効果音：効果音ラボ',
-    sourceLink: '公式サイト'
+    soundError: '終了音を再生できませんでした。端末の音量をご確認ください。'
   },
   en: {
     title: 'Timer',
     minutes: 'Minutes',
     seconds: 'Seconds',
     start: 'Start',
-    pause: 'Pause',
-    resume: 'Resume',
+    pause: 'Stop',
+    resume: 'Start',
     reset: 'Reset',
     settings: 'Settings',
     presetsLabel: 'Timer presets',
+    preset10s: '10 sec',
+    preset30s: '30 sec',
     preset1: '1 min',
+    preset3: '3 min',
     preset5: '5 min',
     preset10: '10 min',
     preset25: '25 min',
@@ -42,12 +45,9 @@ const translations = {
     soundOff: 'Off',
     soundOn: 'On',
     license: 'License',
-    licenseDescription: 'Sound Effect Lab audio license',
-    complete: 'Time is up!',
+    licenseDescription: 'Sound Effect Lab',
     setTime: 'Set a duration to start',
-    soundError: 'Could not play the alarm sound. Check your device volume.',
-    soundCredit: 'Sound: Sound Effect Lab',
-    sourceLink: 'Website'
+    soundError: 'Could not play the alarm sound. Check your device volume.'
   }
 };
 
@@ -62,6 +62,7 @@ if (languageParameter !== null && language !== 'en') {
 }
 document.documentElement.lang = language;
 const display = document.getElementById('timer-display');
+const toolPanel = document.querySelector('.timer-page .tool-panel');
 const minutesInput = document.getElementById('timer-minutes');
 const secondsInput = document.getElementById('timer-seconds');
 const status = document.getElementById('timer-status');
@@ -133,20 +134,33 @@ function restoreState() {
 
 function updateDisplay() {
   display.textContent = formatTime(remainingMs);
+  toolPanel.classList.toggle('is-complete', completed);
 }
 
-function readInputs() {
-  const minutes = Math.min(99, Math.max(0, Number(minutesInput.value) || 0));
-  const seconds = Math.min(59, Math.max(0, Number(secondsInput.value) || 0));
-  minutesInput.value = String(minutes);
-  secondsInput.value = String(seconds);
-  durationMs = Math.min(MAX_DURATION_MS, (minutes * 60 + seconds) * 1000);
+function getInputDurationSeconds() {
+  return Math.min(
+    MAX_DURATION_MS / 1000,
+    Math.max(0, (Number(minutesInput.value) || 0) * 60 + (Number(secondsInput.value) || 0))
+  );
+}
+
+function updateInputDuration() {
+  durationMs = getInputDurationSeconds() * 1000;
   remainingMs = durationMs;
   paused = false;
   completed = false;
   status.textContent = '';
   updateDisplay();
   saveState();
+}
+
+function readInputs() {
+  updateInputDuration();
+  const totalSeconds = durationMs / 1000;
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  minutesInput.value = String(minutes);
+  secondsInput.value = String(seconds);
 }
 
 function stopInterval() {
@@ -168,19 +182,28 @@ function setRunning(isRunning) {
   });
 }
 
+function setCompletedControls(isCompleted) {
+  startButton.hidden = isCompleted;
+  pauseButton.hidden = !isCompleted;
+  pauseButton.disabled = false;
+  pauseButton.setAttribute('aria-pressed', 'false');
+  startButton.textContent = translations[language].start;
+}
+
 function tick() {
   remainingMs = Math.max(0, deadline - Date.now());
-  updateDisplay();
   if (remainingMs === 0) {
     stopInterval();
     paused = false;
     completed = true;
     setRunning(false);
-    status.textContent = translations[language].complete;
-    document.title = `${translations[language].complete} | Time Tools`;
+    setCompletedControls(true);
+    status.textContent = '';
+    document.title = `${translations[language].title} | Time Tools`;
     saveState();
     playAlarm();
   }
+  updateDisplay();
 }
 
 function playAlarm() {
@@ -253,6 +276,17 @@ function startTimer() {
 }
 
 function pauseTimer() {
+  if (completed) {
+    alarmAudio.pause();
+    alarmAudio.currentTime = 0;
+    completed = false;
+    setRunning(false);
+    status.textContent = '';
+    document.title = `${translations[language].title} | Time Tools`;
+    updateDisplay();
+    saveState();
+    return;
+  }
   if (intervalId === null) return;
   tick();
   if (intervalId === null) return;
@@ -289,7 +323,7 @@ function setLanguage() {
   document.querySelectorAll('#timer-sound option[data-i18n]').forEach((option) => {
     option.textContent = translations[language][option.dataset.i18n];
   });
-  if (!completed) document.title = `${translations[language].title} | Time Tools`;
+  document.title = `${translations[language].title} | Time Tools`;
 }
 
 document.querySelectorAll('.preset-button').forEach((button) => {
@@ -304,8 +338,12 @@ document.querySelectorAll('.preset-button').forEach((button) => {
     setRunning(false);
   });
 });
-minutesInput.addEventListener('input', readInputs);
-secondsInput.addEventListener('input', readInputs);
+minutesInput.addEventListener('input', updateInputDuration);
+secondsInput.addEventListener('input', updateInputDuration);
+minutesInput.addEventListener('change', readInputs);
+secondsInput.addEventListener('change', readInputs);
+minutesInput.addEventListener('blur', readInputs);
+secondsInput.addEventListener('blur', readInputs);
 startButton.addEventListener('click', startTimer);
 pauseButton.addEventListener('click', pauseTimer);
 document.getElementById('timer-reset').addEventListener('click', resetTimer);
@@ -325,8 +363,8 @@ setAlarmSound(alarmSound);
 updateDisplay();
 setRunning(false);
 if (completed) {
-  status.textContent = translations[language].complete;
-  document.title = `${translations[language].complete} | Time Tools`;
+  setCompletedControls(true);
+  document.title = `${translations[language].title} | Time Tools`;
 } else if (Number.isFinite(deadline) && deadline > Date.now() && remainingMs > 0 && !paused) {
   setRunning(true);
   intervalId = window.setInterval(tick, 100);
