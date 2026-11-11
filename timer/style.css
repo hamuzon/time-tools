@@ -1,3 +1,4 @@
+
 :root {
   color-scheme: light;
   font-family: Inter, "Segoe UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
@@ -63,6 +64,7 @@ input:focus-visible {
   from {
     transform: scale(1);
   }
+
   to {
     transform: scale(1.06);
   }
@@ -831,15 +833,21 @@ input:focus-visible {
   }
 
   .timer-page .control-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
   }
 
-  .timer-page #timer-start {
-    grid-column: 1 / -1;
+  .timer-page .control-button {
+    width: 100%;
+    min-height: 50px;
   }
 
-  .timer-page .control-row:has(#timer-pause[hidden]) #timer-reset {
-    grid-column: 1 / -1;
+  .timer-page #timer-start,
+  .timer-page #timer-pause,
+  .timer-page #timer-reset {
+    grid-column: auto;
   }
 
   .home-page {
