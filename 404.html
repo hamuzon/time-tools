@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#d8b8ef" />
+    <meta name="robots" content="noindex" />
+    <title>ページが見つかりません | Time Tools</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Inter, "Segoe UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+        color: #292431;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        --ink: #292431;
+        --muted: #625a69;
+        --accent: #6d3fc0;
+        --accent-dark: #5129a0;
+        --glass: rgba(255, 255, 255, 0.62);
+        --shadow: 0 20px 60px rgba(89, 61, 110, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-width: 320px;
+        min-height: 100%;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        padding: 24px;
+        color: var(--ink);
+      }
+
+      a {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      a:focus-visible {
+        outline: 3px solid rgba(109, 63, 192, 0.58);
+        outline-offset: 3px;
+      }
+
+      .aurora-background {
+        position: fixed;
+        inset: -5%;
+        z-index: -1;
+        background:
+          radial-gradient(ellipse 75% 58% at 70% 18%, rgba(175, 109, 255, 0.78), transparent 68%),
+          radial-gradient(ellipse 70% 60% at 18% 80%, rgba(255, 115, 177, 0.7), transparent 68%),
+          radial-gradient(ellipse 58% 50% at 63% 65%, rgba(255, 231, 173, 0.92), transparent 68%),
+          linear-gradient(180deg, #f7eaff 0%, #fde5eb 100%);
+        animation: aurora-drift 24s ease-in-out infinite alternate;
+      }
+
+      @keyframes aurora-drift {
+        to {
+          transform: scale(1.06);
+        }
+      }
+
+      .page-shell {
+        width: min(100%, 760px);
+        min-height: calc(100vh - 48px);
+        display: flex;
+        flex-direction: column;
+        margin-inline: auto;
+      }
+
+      .not-found-page {
+        justify-content: center;
+      }
+
+      .not-found-panel {
+        width: min(100%, 620px);
+        margin: auto;
+        padding: clamp(30px, 7vw, 58px) clamp(22px, 5vw, 42px);
+        border: 1px solid rgba(255, 255, 255, 0.58);
+        border-radius: 30px;
+        background: var(--glass);
+        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
+        box-shadow: var(--shadow);
+        text-align: center;
+      }
+
+      .not-found-code {
+        margin: 0 0 10px;
+        color: var(--accent);
+        font-family: "Potta One", cursive;
+        font-size: clamp(4.5rem, 18vw, 7rem);
+        font-variant-numeric: tabular-nums;
+        font-weight: 400;
+        letter-spacing: 0;
+        line-height: 1;
+      }
+
+      .not-found-title {
+        margin: 16px 0 0;
+        font-size: clamp(1.45rem, 5vw, 2rem);
+        letter-spacing: -0.04em;
+      }
+
+      .not-found-message {
+        margin: 16px 0 27px;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+
+      .not-found-home {
+        min-height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 11px 20px;
+        border: 1px solid transparent;
+        border-radius: 15px;
+        background: var(--accent);
+        box-shadow: 0 7px 18px rgba(93, 52, 164, 0.2);
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 750;
+        text-decoration: none;
+        transition: transform 150ms ease, background 150ms ease, box-shadow 150ms ease;
+      }
+
+      .not-found-home:hover {
+        transform: translateY(-2px);
+        background: var(--accent-dark);
+      }
+
+      .copyright {
+        margin-top: 16px;
+        padding: 8px 0 0;
+        color: var(--muted);
+        font-size: 0.78rem;
+        text-align: center;
+      }
+
+      .copyright a {
+        color: inherit;
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 18px;
+        }
+
+        .page-shell {
+          min-height: calc(100vh - 36px);
+        }
+      }
+
+      @media (max-width: 380px) {
+        body {
+          padding: 14px;
+        }
+
+        .page-shell {
+          min-height: calc(100vh - 28px);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="aurora-background" aria-hidden="true"></div>
+    <main class="page-shell app-page not-found-page">
+      <section class="not-found-panel" aria-labelledby="page-title">
+        <p class="not-found-code" aria-hidden="true">404</p>
+        <h1 id="page-title" class="not-found-title">ページが見つかりません</h1>
+        <p class="not-found-message">
+          お探しのページは移動または削除された可能性があります。<br />
+          The page you are looking for may have moved or been removed.
+        </p>
+        <a class="not-found-home" id="backLink" href="./">
+          トップページへ戻る / Back to home
+        </a>
+      </section>
+      <footer class="copyright app-copyright">
+        <div id="footer-copy"></div>
+      </footer>
+    </main>
+    <script>
+      const currentUrl = new URL(window.location.href);
+      const languageParameter = currentUrl.searchParams.get('lang');
+      const language = languageParameter === 'en' ? 'en' : 'ja';
+      const footerElement = document.getElementById('footer-copy');
+      const backLink = document.getElementById('backLink');
+      const baseYear = 2026;
+      const currentYear = new Date().getFullYear();
+      const hostname = window.location.hostname;
+      const yearDisplay = currentYear > baseYear ? `${baseYear}–${currentYear}` : baseYear;
+      let copyrightContent = '';
+
+      document.documentElement.lang = language;
+
+      if (languageParameter !== null && language !== 'en') {
+        currentUrl.searchParams.delete('lang');
+        window.history.replaceState(null, '', `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`);
+      }
+
+      if (window.location.hostname === 'hamuzon.github.io') {
+        backLink.href = 'https://hamuzon.github.io/time-tools/';
+      }
+
+      if (language === 'en') {
+        const destination = new URL(backLink.href);
+        destination.searchParams.set('lang', 'en');
+        backLink.href = destination.href;
+      }
+
+      if (hostname === 'hamuzon.github.io') {
+        copyrightContent = `&copy; ${yearDisplay} <a href="https://hamuzon.github.io" target="_blank" rel="noopener noreferrer">@hamuzon</a> Time Tools`;
+      } else if (hostname === 'hamusata.f5.si') {
+        copyrightContent = `&copy; ${yearDisplay} <a href="https://hamusata.f5.si" target="_blank" rel="noopener noreferrer">@hamusata</a> Time Tools`;
+      } else if (hostname === 'hamuzon-jp.f5.si') {
+        copyrightContent = `&copy; ${yearDisplay} <a href="https://hamuzon-jp.f5.si" target="_blank" rel="noopener noreferrer">@hamuzon</a> Time Tools`;
+      } else if (hostname === 'hamuzon.web.fc2.com') {
+        copyrightContent = `&copy; ${yearDisplay} <a href="https://hamuzon.web.fc2.com" target="_blank" rel="noopener noreferrer">@hamuzon</a> Time Tools`;
+      } else {
+        copyrightContent = `&copy; ${yearDisplay} Time Tools`;
+      }
+
+      if (footerElement) footerElement.innerHTML = copyrightContent;
+
+      const path = window.location.pathname.toLowerCase();
+      if (path.includes('readme') || path.includes('license')) {
+        window.location.replace('./');
+      }
+    </script>
+  </body>
+</html>

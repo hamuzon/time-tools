@@ -590,6 +590,52 @@ input:focus-visible {
   margin-inline: auto;
 }
 
+.not-found-page {
+  justify-content: center;
+}
+
+.not-found-panel {
+  width: min(100%, 620px);
+  margin: auto;
+  padding: clamp(30px, 7vw, 58px) clamp(22px, 5vw, 42px);
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 30px;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.not-found-code {
+  margin: 0 0 10px;
+  color: var(--accent);
+  font-size: clamp(4.5rem, 18vw, 7rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  letter-spacing: -0.08em;
+  line-height: 1;
+}
+
+.not-found-title {
+  margin: 0;
+  font-size: clamp(1.45rem, 5vw, 2rem);
+  letter-spacing: -0.04em;
+}
+
+.not-found-message {
+  margin: 16px 0 27px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.not-found-home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 .home-header {
   margin-bottom: 30px;
   color: var(--ink);

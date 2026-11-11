@@ -294,16 +294,18 @@ input:focus-visible {
 }
 
 .preset-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
+  width: min(100%, 380px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-inline: auto;
   margin-bottom: 28px;
 }
 
 .preset-button {
+  width: 100%;
   min-height: 40px;
-  padding: 8px 16px;
+  padding: 8px 10px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.42);
