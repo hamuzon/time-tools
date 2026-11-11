@@ -76,6 +76,10 @@ input:focus-visible {
   flex-direction: column;
 }
 
+.stopwatch-page {
+  justify-content: center;
+}
+
 .site-header {
   min-height: 56px;
   display: flex;
@@ -437,7 +441,8 @@ input:focus-visible {
 }
 
 .lap-list {
-  max-height: 230px;
+  height: min(230px, 30vh);
+  min-height: 120px;
   display: grid;
   gap: 8px;
   overflow: auto;
@@ -756,7 +761,7 @@ input:focus-visible {
 }
 
 .stopwatch-page .tool-panel {
-  margin: 0 auto;
+  margin: auto;
 }
 
 .stopwatch-page #stopwatch-start.is-running {
