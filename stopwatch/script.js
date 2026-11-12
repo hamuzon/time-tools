@@ -1,4 +1,3 @@
-
 const translations = {
   ja: {
     title: 'ストップウォッチ',
