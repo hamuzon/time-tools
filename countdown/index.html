@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#d8b8ef" />
+    <title>カウントダウン | Time Tools</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="aurora-background" aria-hidden="true"></div>
+    <main class="page-shell app-page countdown-page">
+      <header class="site-header">
+        <a class="wordmark" href="../" data-tool-link>TIME tools</a>
+      </header>
+      <section class="tool-panel" aria-labelledby="page-title">
+        <div class="panel-heading">
+          <span class="panel-icon" aria-hidden="true">⏳</span>
+          <div>
+            <p class="eyebrow">COUNTDOWN</p>
+            <h1 id="page-title" data-i18n="title">カウントダウン</h1>
+          </div>
+        </div>
+        <p class="countdown-target">
+          <span data-i18n="targetLabel">目標日時</span>:
+          <strong id="countdown-target-label">—</strong>
+        </p>
+        <div class="countdown-display" role="timer" aria-live="off">
+          <div class="countdown-unit">
+            <strong id="countdown-days">0</strong>
+            <span data-i18n="days">日</span>
+          </div>
+          <div class="countdown-unit">
+            <strong id="countdown-hours">00</strong>
+            <span data-i18n="hours">時間</span>
+          </div>
+          <div class="countdown-unit">
+            <strong id="countdown-minutes">00</strong>
+            <span data-i18n="minutes">分</span>
+          </div>
+          <div class="countdown-unit">
+            <strong id="countdown-seconds">00</strong>
+            <span data-i18n="seconds">秒</span>
+          </div>
+        </div>
+        <p class="status-message" id="countdown-status" role="status" aria-live="polite"></p>
+        <div class="preset-list">
+          <button class="preset-button" type="button" data-preset="endOfDay" data-i18n="presetEndOfDay">今日の終わり</button>
+          <button class="preset-button" type="button" data-preset="endOfMonth" data-i18n="presetEndOfMonth">今月の終わり</button>
+          <button class="preset-button" type="button" data-preset="newYear" data-i18n="presetNewYear">元旦</button>
+        </div>
+        <label class="field">
+          <span data-i18n="targetInputLabel">目標日時を設定</span>
+          <input id="countdown-target" type="datetime-local" step="1" />
+        </label>
+      </section>
+      <footer class="copyright app-copyright">
+        <div id="footer-copy"></div>
+      </footer>
+    </main>
+  </body>
+</html>

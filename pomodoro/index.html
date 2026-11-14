@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#d8b8ef" />
+    <title>ポモドーロ・テクニック | Time Tools</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="aurora-background" aria-hidden="true"></div>
+    <main class="page-shell app-page pomodoro-page">
+      <header class="site-header">
+        <a class="wordmark" href="../" data-tool-link>TIME tools</a>
+      </header>
+      <section class="tool-panel" aria-labelledby="page-title">
+        <div class="panel-heading">
+          <span class="panel-icon" aria-hidden="true">🍅</span>
+          <div>
+            <p class="eyebrow">POMODORO</p>
+            <h1 id="page-title" data-i18n="title">ポモドーロ・テクニック</h1>
+          </div>
+        </div>
+        <div class="mode-tabs" role="tablist" aria-label="モード" data-i18n-aria="modeLabel">
+          <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" data-mode="work" data-i18n="work">集中</button>
+          <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="short" data-i18n="short">休憩</button>
+          <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="long" data-i18n="long">長休憩</button>
+        </div>
+        <div class="timer-display" id="pomodoro-display" role="timer" aria-live="off">25:00</div>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-fill" id="pomodoro-progress"></div>
+        </div>
+        <div class="control-row">
+          <button class="control-button primary-button" id="pomodoro-start" type="button" data-i18n="start">スタート</button>
+          <button class="control-button quiet-button" id="pomodoro-reset" type="button" data-i18n="reset">リセット</button>
+        </div>
+        <p class="status-message" id="pomodoro-status" role="status" aria-live="polite"></p>
+        <div class="pomodoro-stats">
+          <span data-i18n="completed">完了した集中</span>
+          <strong id="pomodoro-count">0</strong>
+          <button class="pomodoro-count-reset" id="pomodoro-count-reset" type="button" data-i18n="resetCount">回数をリセット</button>
+        </div>
+        <div class="pomodoro-setting">
+          <span class="pomodoro-setting-label" data-i18n="switchLabel">フェーズの切り替え</span>
+          <div class="advance-tabs" role="group" aria-label="フェーズの切り替え" data-i18n-aria="switchLabel">
+            <button class="advance-tab is-active" type="button" data-advance="auto" data-i18n="autoOption">自動</button>
+            <button class="advance-tab" type="button" data-advance="manual" data-i18n="manualOption">手動</button>
+          </div>
+        </div>
+      </section>
+      <div class="confirm-overlay" id="pomodoro-confirm" hidden>
+        <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="pomodoro-confirm-title" aria-describedby="pomodoro-confirm-message">
+          <h2 class="confirm-title" id="pomodoro-confirm-title" data-i18n="switchRunningTitle">モードを切り替えますか？</h2>
+          <p class="confirm-message" id="pomodoro-confirm-message" data-i18n="switchRunningConfirm">
+            タイマー動作中です。モードを切り替えるとリセットされます。よろしいですか？
+          </p>
+          <div class="confirm-actions">
+            <button class="control-button quiet-button" id="pomodoro-confirm-cancel" type="button" data-i18n="cancel">キャンセル</button>
+            <button class="control-button primary-button" id="pomodoro-confirm-ok" type="button" data-i18n="confirmSwitch">切り替える</button>
+          </div>
+        </div>
+      </div>
+      <div class="confirm-overlay" id="pomodoro-count-reset-confirm" hidden>
+        <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="pomodoro-count-reset-confirm-title" aria-describedby="pomodoro-count-reset-confirm-message">
+          <h2 class="confirm-title" id="pomodoro-count-reset-confirm-title" data-i18n="resetCountTitle">回数をリセットしますか？</h2>
+          <p class="confirm-message" id="pomodoro-count-reset-confirm-message" data-i18n="resetCountMessage">
+            完了した集中の回数を0にします。
+          </p>
+          <div class="confirm-actions">
+            <button class="control-button quiet-button" id="pomodoro-count-reset-confirm-cancel" type="button" data-i18n="cancel">キャンセル</button>
+            <button class="control-button primary-button" id="pomodoro-count-reset-confirm-ok" type="button" data-i18n="confirmResetCount">リセットする</button>
+          </div>
+        </div>
+      </div>
+      <footer class="copyright app-copyright">
+        <div id="footer-copy"></div>
+      </footer>
+    </main>
+  </body>
+</html>
