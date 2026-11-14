@@ -51,15 +51,18 @@ const translations = {
     completed: '完了した集中',
     resetCount: '回数をリセット',
     resetCountTitle: '回数をリセットしますか？',
-    resetCountMessage: '完了した集中の回数を0にします。',
+    resetCountMessage: '回数を0にして、集中25分の最初からやり直します。',
     confirmResetCount: 'リセットする',
+    resetTimerTitle: 'タイマーをリセットしますか？',
+    resetTimerMessage: '現在のタイマーを停止して、最初の時間に戻します。よろしいですか？',
+    resetTimerConfirm: 'リセットする',
     technique: '25分の集中と5分の休憩を1セットとして繰り返します。4セットごとに15分の長い休憩をとります。',
     switchLabel: 'フェーズの切り替え',
     autoOption: '自動',
     manualOption: '手動',
     autoLocked: 'モードは自動で切り替わります。変更するには手動にしてください。',
-    switchRunningConfirm: 'タイマー動作中です。モードを切り替えるとリセットされます。よろしいですか？',
-    switchRunningTitle: 'モードを切り替えますか？',
+    switchRunningConfirm: 'フェーズを切り替えるとタイマーがリセットされます。よろしいですか？',
+    switchRunningTitle: 'フェーズを切り替えますか？',
     cancel: 'キャンセル',
     confirmSwitch: '切り替える',
     statusWork: '集中の時間です。',
@@ -79,15 +82,18 @@ const translations = {
     completed: 'Completed focus sessions',
     resetCount: 'Reset count',
     resetCountTitle: 'Reset completed sessions?',
-    resetCountMessage: 'The completed focus session count will be set to 0.',
+    resetCountMessage: 'The count will be set to 0 and the timer will restart at the beginning of a 25-minute focus session.',
     confirmResetCount: 'Reset count',
+    resetTimerTitle: 'Reset the timer?',
+    resetTimerMessage: 'This will stop the current timer and reset it to the beginning. Continue?',
+    resetTimerConfirm: 'Reset',
     technique: 'Repeat 25 minutes of focus and a 5-minute break as one set. After every 4 sets, take a 15-minute long break.',
     switchLabel: 'Phase switching',
     autoOption: 'Auto',
     manualOption: 'Manual',
     autoLocked: 'Modes switch automatically. Switch to manual to change them.',
-    switchRunningConfirm: 'The timer is running. Switching modes will reset it. Continue?',
-    switchRunningTitle: 'Switch modes?',
+    switchRunningConfirm: 'Switching phases will reset the timer. Continue?',
+    switchRunningTitle: 'Switch phases?',
     cancel: 'Cancel',
     confirmSwitch: 'Switch',
     statusWork: 'Time to focus.',
@@ -156,6 +162,8 @@ const countDisplay = document.getElementById('pomodoro-count');
 const tabs = Array.from(document.querySelectorAll('.mode-tab'));
 const advanceTabs = Array.from(document.querySelectorAll('.advance-tab'));
 const confirmOverlay = document.getElementById('pomodoro-confirm');
+const confirmTitle = document.getElementById('pomodoro-confirm-title');
+const confirmMessage = document.getElementById('pomodoro-confirm-message');
 const confirmOkButton = document.getElementById('pomodoro-confirm-ok');
 const confirmCancelButton = document.getElementById('pomodoro-confirm-cancel');
 const countResetOverlay = document.getElementById('pomodoro-count-reset-confirm');
@@ -168,11 +176,13 @@ let endAt = 0;
 let intervalId = null;
 let completed = 0;
 let advanceMode = 'auto';
+let autoPhase = 'work';
 let restoredRunning = false;
-let caughtUpWhileAway = false;
 let audioContext = null;
 let lockMessageTimer = null;
 let pendingMode = null;
+let pendingAdvanceMode = null;
+let pendingConfirmAction = null;
 let lastFocusedElement = null;
 let lastCountResetFocusedElement = null;
 
@@ -197,7 +207,13 @@ function render() {
 }
 
 function updateCountResetButton() {
-  countResetButton.disabled = completed === 0;
+  const isInitialState = completed === 0
+    && mode === 'work'
+    && advanceMode === 'auto'
+    && intervalId === null
+    && !restoredRunning
+    && remaining === DURATIONS.work;
+  countResetButton.disabled = isInitialState;
 }
 
 function syncTabs() {
@@ -271,7 +287,8 @@ function saveState() {
       running,
       endAt: running ? endAt : 0,
       completed,
-      advanceMode
+      advanceMode,
+      autoPhase
     }));
   } catch (error) {
     console.warn('Could not save pomodoro state.', error);
@@ -303,18 +320,39 @@ function loadState() {
     mode = saved.mode;
   }
 
+  const savedAutoPhase = saved.autoPhase === 'work' || saved.autoPhase === 'short' || saved.autoPhase === 'long'
+    ? saved.autoPhase
+    : mode;
+  autoPhase = completed === 0 ? 'work' : savedAutoPhase;
+
   remaining = DURATIONS[mode];
 
-  if (saved.running && Number.isFinite(saved.endAt)) {
-    const left = saved.endAt - Date.now();
+  if (advanceMode === 'auto' && completed === 0 && mode !== 'work') {
+    mode = 'work';
+    remaining = DURATIONS.work;
+  } else if (saved.running && Number.isFinite(saved.endAt)) {
+    const now = Date.now();
+    const left = saved.endAt - now;
 
     if (left > 0) {
       remaining = left;
       endAt = saved.endAt;
       restoredRunning = true;
+    } else if (advanceMode === 'auto') {
+      let phaseEndAt = saved.endAt;
+      advancePhase(saved.mode);
+      phaseEndAt += DURATIONS[mode];
+
+      while (phaseEndAt <= now) {
+        advancePhase(mode);
+        phaseEndAt += DURATIONS[mode];
+      }
+
+      endAt = phaseEndAt;
+      remaining = endAt - now;
+      restoredRunning = true;
     } else {
       advancePhase(saved.mode);
-      caughtUpWhileAway = true;
       statusMessage.textContent = phaseStatusText();
     }
   } else if (Number.isFinite(saved.remaining) && saved.remaining >= 0) {
@@ -330,6 +368,7 @@ function advancePhase(finishedMode) {
     mode = 'work';
   }
 
+  autoPhase = mode;
   remaining = DURATIONS[mode];
 }
 
@@ -343,6 +382,7 @@ function startTimer() {
   setStartButtonLabel('pause');
   startButton.classList.add('is-running');
   startButton.setAttribute('aria-pressed', 'true');
+  updateCountResetButton();
   render();
   saveState();
 }
@@ -357,6 +397,7 @@ function pauseTimer() {
   setStartButtonLabel('resume');
   startButton.classList.remove('is-running');
   startButton.setAttribute('aria-pressed', 'false');
+  updateCountResetButton();
   render();
   saveState();
 }
@@ -414,15 +455,63 @@ function setMode(nextMode) {
   startButton.setAttribute('aria-pressed', 'false');
 
   syncTabs();
+  updateCountResetButton();
   render();
   saveState();
 }
 
-function setAdvanceMode(nextMode) {
+function resetSession() {
+  if (intervalId !== null) {
+    window.clearInterval(intervalId);
+    intervalId = null;
+  }
+
+  mode = 'work';
+  autoPhase = 'work';
+  advanceMode = 'auto';
+  remaining = DURATIONS.work;
+  endAt = 0;
+  completed = 0;
+  restoredRunning = false;
+  statusMessage.textContent = '';
+  countDisplay.textContent = '0';
+  setStartButtonLabel('start');
+  startButton.classList.remove('is-running');
+  startButton.setAttribute('aria-pressed', 'false');
+  syncTabs();
+  syncAdvanceTabs();
+  updateCountResetButton();
+  render();
+  saveState();
+}
+
+function setAdvanceMode(nextMode, confirmed = false) {
   if (nextMode !== 'auto' && nextMode !== 'manual') return;
+
+  const returnToAutoPhase = nextMode === 'auto'
+    && advanceMode !== 'auto'
+    && intervalId === null
+    && mode !== autoPhase;
+
+  if (returnToAutoPhase && remaining < DURATIONS[mode] && !confirmed) {
+    openAdvanceModeConfirm(nextMode);
+    return;
+  }
+
+  if (returnToAutoPhase) {
+    mode = autoPhase;
+    remaining = DURATIONS[mode];
+    statusMessage.textContent = '';
+    setStartButtonLabel('start');
+    startButton.classList.remove('is-running');
+    startButton.setAttribute('aria-pressed', 'false');
+    syncTabs();
+    render();
+  }
 
   advanceMode = nextMode;
   syncAdvanceTabs();
+  updateCountResetButton();
   saveState();
 }
 
@@ -431,6 +520,11 @@ function closeConfirm() {
 
   confirmOverlay.hidden = true;
   pendingMode = null;
+  pendingAdvanceMode = null;
+  pendingConfirmAction = null;
+  confirmTitle.textContent = t('switchRunningTitle');
+  confirmMessage.textContent = t('switchRunningConfirm');
+  confirmOkButton.textContent = t('confirmSwitch');
 
   if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
     lastFocusedElement.focus();
@@ -442,7 +536,38 @@ function closeConfirm() {
 function openModeConfirm(nextMode) {
   if (!confirmOverlay) return;
 
+  pendingConfirmAction = 'mode';
   pendingMode = nextMode;
+  confirmTitle.textContent = t('switchRunningTitle');
+  confirmMessage.textContent = t('switchRunningConfirm');
+  confirmOkButton.textContent = t('confirmSwitch');
+  lastFocusedElement = document.activeElement;
+  confirmOverlay.hidden = false;
+
+  if (confirmCancelButton) confirmCancelButton.focus();
+}
+
+function openAdvanceModeConfirm(nextMode) {
+  if (!confirmOverlay) return;
+
+  pendingConfirmAction = 'advance';
+  pendingAdvanceMode = nextMode;
+  confirmTitle.textContent = t('switchRunningTitle');
+  confirmMessage.textContent = t('switchRunningConfirm');
+  confirmOkButton.textContent = t('confirmSwitch');
+  lastFocusedElement = document.activeElement;
+  confirmOverlay.hidden = false;
+
+  if (confirmCancelButton) confirmCancelButton.focus();
+}
+
+function openResetConfirm() {
+  if (!confirmOverlay) return;
+
+  pendingConfirmAction = 'reset';
+  confirmTitle.textContent = t('resetTimerTitle');
+  confirmMessage.textContent = t('resetTimerMessage');
+  confirmOkButton.textContent = t('resetTimerConfirm');
   lastFocusedElement = document.activeElement;
   confirmOverlay.hidden = false;
 
@@ -472,9 +597,13 @@ function openCountResetConfirm() {
 
 if (confirmOkButton) {
   confirmOkButton.addEventListener('click', () => {
+    const action = pendingConfirmAction;
     const nextMode = pendingMode;
+    const nextAdvanceMode = pendingAdvanceMode;
     closeConfirm();
-    if (nextMode) setMode(nextMode);
+    if (action === 'mode' && nextMode) setMode(nextMode);
+    else if (action === 'reset') setMode(mode);
+    else if (action === 'advance' && nextAdvanceMode) setAdvanceMode(nextAdvanceMode, true);
   });
 }
 
@@ -490,10 +619,7 @@ if (confirmOverlay) {
 
 if (countResetConfirmButton) {
   countResetConfirmButton.addEventListener('click', () => {
-    completed = 0;
-    countDisplay.textContent = '0';
-    updateCountResetButton();
-    saveState();
+    resetSession();
     closeCountResetConfirm();
   });
 }
@@ -541,7 +667,10 @@ startButton.addEventListener('click', () => {
   else pauseTimer();
 });
 
-resetButton.addEventListener('click', () => setMode(mode));
+resetButton.addEventListener('click', () => {
+  if (intervalId !== null || remaining < DURATIONS[mode]) openResetConfirm();
+  else setMode(mode);
+});
 
 countResetButton.addEventListener('click', openCountResetConfirm);
 
@@ -562,7 +691,7 @@ tabs.forEach((tab) => {
       return;
     }
 
-    if (intervalId !== null) {
+    if (intervalId !== null || remaining < DURATIONS[mode]) {
       openModeConfirm(nextMode);
       return;
     }
@@ -595,8 +724,6 @@ if (restoredRunning) {
   startButton.classList.add('is-running');
   startButton.setAttribute('aria-pressed', 'true');
   render();
-} else if (caughtUpWhileAway && advanceMode === 'auto') {
-  startTimer();
 } else {
   const partiallyElapsed = remaining > 0 && remaining < DURATIONS[mode];
   setStartButtonLabel(partiallyElapsed ? 'resume' : 'start');
