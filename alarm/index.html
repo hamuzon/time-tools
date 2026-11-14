@@ -22,7 +22,7 @@
       </header>
       <section class="tool-panel" aria-labelledby="page-title">
         <div class="panel-heading">
-          <span class="panel-icon" aria-hidden="true">🔔</span>
+          <span class="panel-icon" aria-hidden="true"><span class="material-symbols-outlined">notifications</span></span>
           <div>
             <p class="eyebrow">ALARM</p>
             <h1 id="page-title" data-i18n="title">アラーム</h1>
@@ -42,77 +42,119 @@
             <input id="alarm-date" type="date" />
           </label>
         </div>
-        <div class="alarm-options">
-          <label class="field">
-            <span data-i18n="soundLabel">通知音</span>
-            <select id="alarm-sound">
-              <option value="beep" data-i18n="soundBeep">ビープ</option>
-              <option value="chime" data-i18n="soundChime">チャイム</option>
-              <option value="bell" data-i18n="soundBell">ベル</option>
-              <option value="alarm" data-i18n="soundAlarm">アラーム</option>
-              <option value="digital" data-i18n="soundDigital">デジタル</option>
-              <option value="gong" data-i18n="soundGong">ゴング</option>
-              <option value="chirp" data-i18n="soundChirp">チャープ</option>
-              <option value="none" data-i18n="soundNone">音なし</option>
-            </select>
-          </label>
-          <button class="icon-button alarm-sound-remove" id="alarm-sound-remove" type="button" data-i18n-aria="soundRemoveAria" disabled>
-            <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+        <div class="alarm-disclosure-toggles">
+          <button class="alarm-settings-toggle" id="alarm-settings-toggle" type="button" aria-expanded="false" aria-controls="alarm-settings">
+            <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+            <span data-i18n="settingsLabel">設定</span>
+            <span class="material-symbols-outlined alarm-settings-chevron" aria-hidden="true">expand_more</span>
           </button>
-          <div class="alarm-notify-field">
-            <span class="alarm-field-label" data-i18n="notifyLabel">通知する</span>
-            <label class="switch">
-              <input id="alarm-notify" type="checkbox" checked aria-label="通知する" data-i18n-aria="notifyLabel" />
-              <span class="switch-track"></span>
+          <button class="alarm-settings-toggle alarm-schedule-toggle" id="alarm-schedule-toggle" type="button" aria-expanded="false" aria-controls="alarm-schedule-options">
+            <span class="material-symbols-outlined" aria-hidden="true">event_repeat</span>
+            <span data-i18n="scheduleToolsLabel">曜日・クイック設定</span>
+            <span class="material-symbols-outlined alarm-settings-chevron" aria-hidden="true">expand_more</span>
+          </button>
+        </div>
+        <div class="alarm-settings" id="alarm-settings" hidden>
+          <div class="alarm-options">
+            <label class="field">
+              <span data-i18n="soundLabel">通知音</span>
+              <select id="alarm-sound">
+                <option value="beep" data-i18n="soundBeep">ビープ</option>
+                <option value="chime" data-i18n="soundChime">チャイム</option>
+                <option value="bell" data-i18n="soundBell">ベル</option>
+                <option value="alarm" data-i18n="soundAlarm">アラーム</option>
+                <option value="digital" data-i18n="soundDigital">デジタル</option>
+                <option value="gong" data-i18n="soundGong">ゴング</option>
+                <option value="chirp" data-i18n="soundChirp">チャープ</option>
+                <option value="none" data-i18n="soundNone">音なし</option>
+              </select>
             </label>
+            <button class="icon-button alarm-sound-remove" id="alarm-sound-remove" type="button" data-i18n-aria="soundRemoveAria" disabled>
+              <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+            </button>
+            <div class="alarm-notify-field">
+              <span class="alarm-field-label" data-i18n="notifyLabel">通知する</span>
+              <label class="switch">
+                <input id="alarm-notify" type="checkbox" checked aria-label="通知する" data-i18n-aria="notifyLabel" />
+                <span class="switch-track"></span>
+              </label>
+            </div>
+            <label class="alarm-sound-file">
+              <span class="alarm-field-label" data-i18n="soundFileLabel">音声ファイル</span>
+              <input id="alarm-sound-file" type="file" accept="audio/*,.mp3,.wav,.ogg,.oga,.m4a,.aac,.flac,.opus,.webm,.aiff,.caf" />
+            </label>
+            <label class="alarm-sound-url">
+              <span class="alarm-field-label" data-i18n="soundUrlLabel">音声URL</span>
+              <input id="alarm-sound-url" type="url" inputmode="url" placeholder="https://example.com/sound.mp3" />
+            </label>
+            <label class="alarm-volume-field">
+              <span class="alarm-field-label" data-i18n="volumeLabel">音量</span>
+              <span class="alarm-volume-control">
+                <input id="alarm-volume" type="range" min="0" max="100" step="0.5" value="50" data-i18n-aria="volumeLabel" />
+                <output id="alarm-volume-value" for="alarm-volume">50%</output>
+              </span>
+            </label>
+            <label class="field snooze-duration-control">
+              <span data-i18n="snoozeDurationLabel">スヌーズ時間</span>
+              <span class="snooze-duration-inputs">
+                <select id="alarm-snooze-duration">
+                  <option value="1" data-i18n="snooze1">1分</option>
+                  <option value="3" data-i18n="snooze3">3分</option>
+                  <option value="5" data-i18n="snooze5">5分</option>
+                  <option value="10" data-i18n="snooze10">10分</option>
+                  <option value="15" data-i18n="snooze15">15分</option>
+                  <option value="30" data-i18n="snooze30">30分</option>
+                  <option value="custom" data-i18n="snoozeCustom">任意</option>
+                </select>
+                <input id="alarm-snooze-custom-minutes" type="number" min="1" max="60" step="1" value="5" data-i18n-aria="snoozeCustomAria" hidden />
+                <span class="snooze-duration-unit" data-i18n="snoozeUnit">分</span>
+              </span>
+              <span class="snooze-duration-error" id="alarm-snooze-duration-error" role="status" hidden></span>
+            </label>
+            <div class="alarm-settings-actions">
+              <button class="control-button quiet-button" id="alarm-test" type="button" data-i18n="testSound">音をテスト</button>
+            </div>
           </div>
-          <label class="alarm-sound-file">
-            <span class="alarm-field-label" data-i18n="soundFileLabel">音声ファイル</span>
-            <input id="alarm-sound-file" type="file" accept="audio/*,.mp3,.wav,.ogg,.oga,.m4a,.aac,.flac,.opus,.webm,.aiff,.caf" />
-          </label>
-          <label class="alarm-sound-url">
-            <span class="alarm-field-label" data-i18n="soundUrlLabel">音声URL</span>
-            <input id="alarm-sound-url" type="url" inputmode="url" placeholder="https://example.com/sound.mp3" />
-          </label>
         </div>
-        <div class="weekday-section">
-          <span class="alarm-field-label" data-i18n="daysLabel">繰り返す曜日</span>
-          <div class="weekday-row" role="group" aria-label="繰り返す曜日" data-i18n-aria="daysLabel">
-            <button class="weekday-chip is-active" type="button" data-day="0" data-i18n="sun">日</button>
-            <button class="weekday-chip is-active" type="button" data-day="1" data-i18n="mon">月</button>
-            <button class="weekday-chip is-active" type="button" data-day="2" data-i18n="tue">火</button>
-            <button class="weekday-chip is-active" type="button" data-day="3" data-i18n="wed">水</button>
-            <button class="weekday-chip is-active" type="button" data-day="4" data-i18n="thu">木</button>
-            <button class="weekday-chip is-active" type="button" data-day="5" data-i18n="fri">金</button>
-            <button class="weekday-chip is-active" type="button" data-day="6" data-i18n="sat">土</button>
+        <div class="alarm-schedule-options" id="alarm-schedule-options" hidden>
+          <div class="weekday-section">
+            <span class="alarm-field-label" data-i18n="daysLabel">繰り返す曜日</span>
+            <div class="weekday-row" role="group" aria-label="繰り返す曜日" data-i18n-aria="daysLabel">
+              <button class="weekday-chip is-active" type="button" data-day="0" data-i18n="sun">日</button>
+              <button class="weekday-chip is-active" type="button" data-day="1" data-i18n="mon">月</button>
+              <button class="weekday-chip is-active" type="button" data-day="2" data-i18n="tue">火</button>
+              <button class="weekday-chip is-active" type="button" data-day="3" data-i18n="wed">水</button>
+              <button class="weekday-chip is-active" type="button" data-day="4" data-i18n="thu">木</button>
+              <button class="weekday-chip is-active" type="button" data-day="5" data-i18n="fri">金</button>
+              <button class="weekday-chip is-active" type="button" data-day="6" data-i18n="sat">土</button>
+            </div>
+            <div class="weekday-presets">
+              <button class="weekday-preset" type="button" data-days="all" data-i18n="everyDay">毎日</button>
+              <button class="weekday-preset" type="button" data-days="weekdays" data-i18n="weekdays">平日</button>
+              <button class="weekday-preset" type="button" data-days="weekend" data-i18n="weekend">週末</button>
+            </div>
           </div>
-          <div class="weekday-presets">
-            <button class="weekday-preset" type="button" data-days="all" data-i18n="everyDay">毎日</button>
-            <button class="weekday-preset" type="button" data-days="weekdays" data-i18n="weekdays">平日</button>
-            <button class="weekday-preset" type="button" data-days="weekend" data-i18n="weekend">週末</button>
+          <div class="quick-alarm">
+            <span class="alarm-field-label" data-i18n="quickLabel">今から追加</span>
+            <div class="quick-alarm-row">
+              <button class="quick-alarm-button" type="button" data-seconds="10" data-i18n="quick10s">10秒後</button>
+              <button class="quick-alarm-button" type="button" data-seconds="30" data-i18n="quick30s">30秒後</button>
+              <button class="quick-alarm-button" type="button" data-seconds="60" data-i18n="quick1m">1分後</button>
+              <button class="quick-alarm-button" type="button" data-seconds="180" data-i18n="quick3m">3分後</button>
+              <button class="quick-alarm-button" type="button" data-seconds="300" data-i18n="quick5">5分後</button>
+              <button class="quick-alarm-button" type="button" data-seconds="600" data-i18n="quick10">10分後</button>
+              <button class="quick-alarm-button" type="button" data-seconds="900" data-i18n="quick15">15分後</button>
+              <button class="quick-alarm-button" type="button" data-seconds="1800" data-i18n="quick30">30分後</button>
+              <button class="quick-alarm-button" type="button" data-seconds="3600" data-i18n="quick60">1時間後</button>
+            </div>
           </div>
-        </div>
-        <div class="quick-alarm">
-          <span class="alarm-field-label" data-i18n="quickLabel">今から追加</span>
-          <div class="quick-alarm-row">
-            <button class="quick-alarm-button" type="button" data-seconds="10" data-i18n="quick10s">10秒後</button>
-            <button class="quick-alarm-button" type="button" data-seconds="30" data-i18n="quick30s">30秒後</button>
-            <button class="quick-alarm-button" type="button" data-seconds="60" data-i18n="quick1m">1分後</button>
-            <button class="quick-alarm-button" type="button" data-seconds="180" data-i18n="quick3m">3分後</button>
-            <button class="quick-alarm-button" type="button" data-seconds="300" data-i18n="quick5">5分後</button>
-            <button class="quick-alarm-button" type="button" data-seconds="600" data-i18n="quick10">10分後</button>
-            <button class="quick-alarm-button" type="button" data-seconds="900" data-i18n="quick15">15分後</button>
-            <button class="quick-alarm-button" type="button" data-seconds="1800" data-i18n="quick30">30分後</button>
-            <button class="quick-alarm-button" type="button" data-seconds="3600" data-i18n="quick60">1時間後</button>
+          <div class="quick-fixed">
+            <div class="quick-fixed-list" id="quick-fixed-list"></div>
           </div>
-        </div>
-        <div class="quick-fixed">
-          <div class="quick-fixed-list" id="quick-fixed-list"></div>
         </div>
         <div class="alarm-form-actions">
           <button class="control-button primary-button" id="alarm-add" type="button" data-i18n="add">追加</button>
           <button class="control-button quiet-button" id="alarm-cancel" type="button" data-i18n="cancel" hidden>キャンセル</button>
-          <button class="control-button quiet-button" id="alarm-test" type="button" data-i18n="testSound">音をテスト</button>
         </div>
         <p class="status-message" id="alarm-status" role="status" aria-live="polite"></p>
         <div class="notify-row" id="notify-row" hidden>
@@ -135,7 +177,7 @@
     </main>
     <div class="alarm-overlay" id="alarm-overlay" role="alertdialog" aria-modal="true" aria-labelledby="alarm-ringing-title" hidden>
       <div class="alarm-dialog">
-        <p class="alarm-bell" aria-hidden="true">🔔</p>
+        <p class="alarm-bell" aria-hidden="true"><span class="material-symbols-outlined">notifications_active</span></p>
         <h2 id="alarm-ringing-title" data-i18n="ringing">アラーム</h2>
         <p class="alarm-dialog-time" id="alarm-ringing-time">07:00</p>
         <p class="alarm-dialog-sub" id="alarm-ringing-label" hidden></p>

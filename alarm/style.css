@@ -259,6 +259,10 @@ input:focus-visible {
   font-size: 1.8rem;
 }
 
+.panel-icon .material-symbols-outlined {
+  font-size: 30px;
+}
+
 .panel-heading .eyebrow {
   margin-bottom: 5px;
   font-size: 0.64rem;
@@ -484,6 +488,10 @@ input:focus-visible {
 }
 
 @media (max-width: 600px) {
+  .alarm-disclosure-toggles {
+    grid-template-columns: 1fr;
+  }
+
   body {
     padding: 18px;
   }
@@ -749,7 +757,7 @@ input:focus-visible {
 }
 
 .alarm-page .form-hint {
-  margin-top: 12px;
+  margin-top: 0;
 }
 
 .alarm-fields {
@@ -759,12 +767,73 @@ input:focus-visible {
   margin-top: 26px;
 }
 
+.alarm-disclosure-toggles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.alarm-settings-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.45);
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.alarm-settings-toggle:hover,
+.alarm-settings-toggle[aria-expanded="true"] {
+  border-color: rgba(109, 63, 192, 0.3);
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--accent-dark);
+}
+
+.alarm-settings-chevron {
+  margin-left: auto;
+  transition: transform 150ms ease;
+}
+
+.alarm-settings-toggle[aria-expanded="true"] .alarm-settings-chevron {
+  transform: rotate(180deg);
+}
+
+.alarm-settings {
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid rgba(63, 48, 77, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.alarm-settings[hidden] {
+  display: none;
+}
+
+.alarm-schedule-options {
+  margin-top: 4px;
+}
+
+.alarm-schedule-options[hidden] {
+  display: none;
+}
+
 .alarm-options {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 12px;
-  margin-top: 12px;
 }
 
 .field-wide {
@@ -773,6 +842,57 @@ input:focus-visible {
 
 .alarm-options .field {
   flex: 1 1 180px;
+}
+
+.snooze-duration-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.snooze-duration-inputs select,
+.snooze-duration-inputs input {
+  min-width: 0;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.snooze-duration-inputs select {
+  flex: 1 1 auto;
+}
+
+.snooze-duration-inputs input {
+  width: 84px;
+}
+
+.snooze-duration-inputs input[hidden] {
+  display: none;
+}
+
+.snooze-duration-unit {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.snooze-duration-error {
+  color: #b3261e;
+  font-size: 0.74rem;
+}
+
+.snooze-duration-error[hidden] {
+  display: none;
+}
+
+.alarm-settings-actions {
+  display: flex;
+  flex: 1 1 100%;
+  justify-content: flex-start;
 }
 
 .alarm-notify-field {
@@ -787,8 +907,33 @@ input:focus-visible {
 }
 
 .alarm-sound-file,
-.alarm-sound-url {
+.alarm-sound-url,
+.alarm-volume-field {
   flex: 1 1 100%;
+}
+
+.alarm-volume-field {
+  display: grid;
+  gap: 7px;
+}
+
+.alarm-volume-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px;
+  align-items: center;
+  gap: 12px;
+}
+
+.alarm-volume-control input {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.alarm-volume-control output {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
 .alarm-sound-remove {
@@ -837,6 +982,16 @@ input:focus-visible {
   color: var(--muted);
   font-size: 0.68rem;
   line-height: 1.5;
+}
+
+.alarm-notification-icon {
+  vertical-align: middle;
+  font-size: 16px;
+}
+
+.alarm-every.is-snoozed {
+  color: var(--accent-dark);
+  font-weight: 750;
 }
 
 .weekday-section {
@@ -1182,6 +1337,21 @@ input:focus-visible {
   opacity: 0.55;
 }
 
+.alarm-item.is-off.is-finished {
+  opacity: 0.78;
+}
+
+.alarm-item.is-off.is-finished .icon-button.is-edit {
+  border-color: rgba(109, 63, 192, 0.28);
+  background: rgba(109, 63, 192, 0.12);
+  color: var(--accent-dark);
+}
+
+.alarm-item.is-snoozed {
+  border-color: rgba(109, 63, 192, 0.32);
+  background: rgba(109, 63, 192, 0.07);
+}
+
 .alarm-time {
   font-size: 1.3rem;
   font-variant-numeric: tabular-nums;
@@ -1284,6 +1454,10 @@ input:focus-visible {
   font-size: 3rem;
   line-height: 1;
   animation: bell-shake 900ms ease-in-out infinite;
+}
+
+.alarm-bell .material-symbols-outlined {
+  font-size: 3rem;
 }
 
 @keyframes bell-shake {

@@ -230,7 +230,7 @@ function buildRows() {
     cityBlock.className = 'world-city';
 
     const icon = document.createElement('span');
-    icon.className = 'world-icon';
+    icon.className = 'world-icon material-symbols-outlined';
 
     const info = document.createElement('div');
 
@@ -307,7 +307,7 @@ function update() {
     const isDaytime = hour >= 6 && hour < 18;
 
     const icon = row.querySelector('.world-icon');
-    icon.textContent = isDaytime ? '☀️' : '🌙';
+    icon.textContent = isDaytime ? 'light_mode' : 'dark_mode';
     icon.setAttribute('role', 'img');
     icon.setAttribute('aria-label', isDaytime ? 'Day' : 'Night');
 

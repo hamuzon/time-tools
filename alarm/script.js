@@ -67,7 +67,22 @@ const translations = {
     ringing: 'アラーム',
     stop: '停止',
     snooze: 'スヌーズ',
-    snoozed: '5分後にもう一度鳴ります。',
+    snoozed: '{time}分後にもう一度鳴ります。',
+    snoozeInList: 'スヌーズ中・あと{time}',
+    snoozeDurationLabel: 'スヌーズ時間',
+    snoozeFor: 'スヌーズ（{time}分）',
+    settingsLabel: '設定',
+    snoozeCustom: '任意',
+    snoozeCustomAria: 'スヌーズ時間（1〜60分）',
+    snoozeUnit: '分',
+    snoozeInvalid: 'スヌーズ時間は1〜60分で入力してください。',
+    snooze1: '1分',
+    snooze3: '3分',
+    snooze5: '5分',
+    snooze10: '10分',
+    snooze15: '15分',
+    snooze30: '30分',
+    scheduleToolsLabel: '曜日・クイック設定',
     added: '{time} のアラームを追加しました。',
     enabled: '{time} のアラームを有効にしました。',
     invalid: '時刻を指定してください。',
@@ -106,12 +121,14 @@ const translations = {
     soundChirp: 'チャープ',
     soundNone: '音なし',
     soundCustom: 'カスタム',
+    volumeLabel: '音量',
     soundFileLabel: '音声ファイル',
     soundUrlLabel: '音声URL',
     soundTooLarge: '音声ファイルは{limit}MB以下にしてください。',
     soundPlayFailed: '音声を再生できませんでした。ファイル形式やブラウザの対応を確認してください。',
     soundLoaded: '{name} を読み込みました。',
     soundUrlInvalid: 'http(s) のURLを入力してください。',
+    soundUrlUnsupported: '指定できないドメインやサービスです。',
     soundUrlLoaded: 'URLを設定しました。',
     soundSaveFailed: '音声ファイルを保存できませんでした。',
     soundRemoveAria: '選択中のカスタム音を削除',
@@ -149,7 +166,22 @@ const translations = {
     ringing: 'Alarm',
     stop: 'Stop',
     snooze: 'Snooze',
-    snoozed: 'It will ring again in 5 minutes.',
+    snoozed: 'It will ring again in {time} minutes.',
+    snoozeInList: 'Snoozed · {time} left',
+    snoozeDurationLabel: 'Snooze duration',
+    snoozeFor: 'Snooze ({time} min)',
+    settingsLabel: 'Settings',
+    snoozeCustom: 'Custom',
+    snoozeCustomAria: 'Snooze duration (1–60 minutes)',
+    snoozeUnit: 'min',
+    snoozeInvalid: 'Enter a snooze duration from 1 to 60 minutes.',
+    snooze1: '1 min',
+    snooze3: '3 min',
+    snooze5: '5 min',
+    snooze10: '10 min',
+    snooze15: '15 min',
+    snooze30: '30 min',
+    scheduleToolsLabel: 'Repeat & quick options',
     added: 'Alarm set for {time}.',
     enabled: 'Alarm at {time} is enabled.',
     invalid: 'Please choose a time.',
@@ -188,12 +220,14 @@ const translations = {
     soundChirp: 'Chirp',
     soundNone: 'Silent',
     soundCustom: 'Custom',
+    volumeLabel: 'Volume',
     soundFileLabel: 'Sound file',
     soundUrlLabel: 'Sound URL',
     soundTooLarge: 'Choose an audio file no larger than {limit} MB.',
     soundPlayFailed: 'Could not play this audio. Check the file format and browser support.',
     soundLoaded: 'Loaded {name}.',
     soundUrlInvalid: 'Enter an http(s) URL.',
+    soundUrlUnsupported: 'This domain or service cannot be used.',
     soundUrlLoaded: 'Sound URL set.',
     soundSaveFailed: 'Could not save the sound file.',
     soundRemoveAria: 'Remove the selected custom sound',
@@ -249,10 +283,14 @@ const notifications = (() => {
 const STORAGE_KEY = 'time-tools-alarms-v1';
 const CUSTOM_SOUNDS_KEY = 'time-tools-alarm-custom-sounds-v1';
 const CUSTOM_SOUND_NAMES_KEY = 'time-tools-alarm-custom-sound-names-v1';
+const ALARM_VOLUME_KEY = 'time-tools-alarm-volume-v1';
+const SNOOZE_DURATION_KEY = 'time-tools-alarm-snooze-duration-v1';
+const SNOOZE_STATE_KEY = 'time-tools-alarm-snooze-state-v1';
 const SOUND_DB_NAME = 'time-tools-alarm-sounds-v1';
 const SOUND_DB_STORE = 'files';
-const MAX_SOUND_FILE_BYTES = 20 * 1024 * 1024;
-const SNOOZE_MS = 5 * 60 * 1000;
+const MAX_SOUND_FILE_BYTES = 50 * 1024 * 1024;
+const DEFAULT_ALARM_VOLUME = 50;
+const MAX_ALARM_OUTPUT_GAIN = 0.35;
 const ONCE_WINDOW_MS = 90 * 1000;
 const DEFAULT_FIXED_TIMES = ['06:00', '07:00', '08:00', '09:00', '12:00', '18:00', '21:00', '22:00'];
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -277,8 +315,17 @@ const dateInput = document.getElementById('alarm-date');
 const labelInput = document.getElementById('alarm-label');
 const soundSelect = document.getElementById('alarm-sound');
 const soundRemoveButton = document.getElementById('alarm-sound-remove');
+const soundVolumeInput = document.getElementById('alarm-volume');
+const soundVolumeValue = document.getElementById('alarm-volume-value');
 const soundFileInput = document.getElementById('alarm-sound-file');
 const soundUrlInput = document.getElementById('alarm-sound-url');
+const snoozeDurationSelect = document.getElementById('alarm-snooze-duration');
+const snoozeCustomMinutesInput = document.getElementById('alarm-snooze-custom-minutes');
+const snoozeDurationError = document.getElementById('alarm-snooze-duration-error');
+const settingsToggle = document.getElementById('alarm-settings-toggle');
+const settingsPanel = document.getElementById('alarm-settings');
+const scheduleToggle = document.getElementById('alarm-schedule-toggle');
+const schedulePanel = document.getElementById('alarm-schedule-options');
 const notifyInput = document.getElementById('alarm-notify');
 const addButton = document.getElementById('alarm-add');
 const cancelButton = document.getElementById('alarm-cancel');
@@ -310,13 +357,17 @@ let editingId = null;
 let ringing = false;
 let ringingInfo = { time: '', label: '' };
 let pendingFireAt = 0;
-let snoozeUntil = 0;
-let snoozeInfo = { time: '', label: '' };
+const restoredSnoozeState = loadSnoozeState();
+let snoozeUntil = restoredSnoozeState ? restoredSnoozeState.until : 0;
+let snoozeInfo = restoredSnoozeState
+  ? restoredSnoozeState.info
+  : { time: '', label: '' };
+let snoozeDurationMinutes = loadSnoozeDuration();
 let audioContext = null;
+let audioOutputGain = null;
+let alarmVolume = loadAlarmVolume();
 let soundTimer = null;
 let customAudio = null;
-let previewAudio = null;
-let previewTimer = null;
 let testPlaying = false;
 let testTimer = null;
 let testAudio = null;
@@ -399,6 +450,130 @@ function loadAlarms() {
     console.warn('Could not restore alarms.', error);
     return [];
   }
+}
+
+function loadAlarmVolume() {
+  try {
+    const saved = window.localStorage.getItem(ALARM_VOLUME_KEY);
+    if (saved === null) return DEFAULT_ALARM_VOLUME;
+
+    const volume = Number(saved);
+    return Number.isFinite(volume)
+      ? Math.round(Math.max(0, Math.min(100, volume)) * 10) / 10
+      : DEFAULT_ALARM_VOLUME;
+  } catch (error) {
+    console.warn('Could not restore alarm volume.', error);
+    return DEFAULT_ALARM_VOLUME;
+  }
+}
+
+function loadSnoozeDuration() {
+  try {
+    const saved = Number(window.localStorage.getItem(SNOOZE_DURATION_KEY));
+    return Number.isInteger(saved) && saved >= 1 && saved <= 60 ? saved : 5;
+  } catch (error) {
+    console.warn('Could not restore snooze duration.', error);
+    return 5;
+  }
+}
+
+function loadSnoozeState() {
+  try {
+    const raw = window.localStorage.getItem(SNOOZE_STATE_KEY);
+    if (!raw) return null;
+
+    const state = JSON.parse(raw);
+    const alarmExists = alarms.some((alarm) => alarm.id === state.info?.alarmId);
+    if (!Number.isFinite(state.until) || state.until <= 0 || !alarmExists) {
+      console.warn('Stored snooze state is invalid or its alarm no longer exists.');
+      clearSnoozeState();
+      return null;
+    }
+
+    return state;
+  } catch (error) {
+    console.warn('Could not restore snooze state.', error);
+    clearSnoozeState();
+    return null;
+  }
+}
+
+function saveSnoozeState() {
+  try {
+    window.localStorage.setItem(
+      SNOOZE_STATE_KEY,
+      JSON.stringify({ until: snoozeUntil, info: snoozeInfo })
+    );
+  } catch (error) {
+    console.warn('Could not save snooze state.', error);
+  }
+}
+
+function clearSnoozeState() {
+  try {
+    window.localStorage.removeItem(SNOOZE_STATE_KEY);
+  } catch (error) {
+    console.warn('Could not clear snooze state.', error);
+  }
+}
+
+function saveSnoozeDuration(minutes) {
+  snoozeDurationMinutes = minutes;
+  try {
+    window.localStorage.setItem(SNOOZE_DURATION_KEY, String(minutes));
+  } catch (error) {
+    console.warn('Could not save snooze duration.', error);
+  }
+  updateSnoozeDurationControls();
+}
+
+function updateSnoozeDurationControls() {
+  if (!snoozeDurationSelect || !snoozeCustomMinutesInput) return;
+
+  const preset = Array.from(snoozeDurationSelect.options)
+    .some((option) => option.value === String(snoozeDurationMinutes));
+  snoozeDurationSelect.value = preset ? String(snoozeDurationMinutes) : 'custom';
+  snoozeCustomMinutesInput.value = String(snoozeDurationMinutes);
+  snoozeCustomMinutesInput.hidden = preset;
+  snoozeDurationError.hidden = true;
+  snoozeButton.textContent = t('snoozeFor').replace(
+    '{time}',
+    String(snoozeDurationMinutes)
+  );
+}
+
+function updateAlarmVolume(value, persist = true) {
+  const parsedVolume = Number(value);
+  if (!Number.isFinite(parsedVolume)) return;
+
+  alarmVolume = Math.round(Math.max(0, Math.min(100, parsedVolume)) * 10) / 10;
+
+  if (soundVolumeInput) soundVolumeInput.value = String(alarmVolume);
+  if (soundVolumeValue) soundVolumeValue.textContent = `${alarmVolume}%`;
+
+  if (audioOutputGain && audioContext) {
+    audioOutputGain.gain.setTargetAtTime(
+      getAlarmOutputVolume(),
+      audioContext.currentTime,
+      0.02
+    );
+  }
+
+  [customAudio, testAudio].forEach((audio) => {
+    if (audio) audio.volume = getAlarmOutputVolume();
+  });
+
+  if (persist) {
+    try {
+      window.localStorage.setItem(ALARM_VOLUME_KEY, String(alarmVolume));
+    } catch (error) {
+      console.warn('Could not save alarm volume.', error);
+    }
+  }
+}
+
+function getAlarmOutputVolume() {
+  return alarmVolume / 100 * MAX_ALARM_OUTPUT_GAIN;
 }
 
 function saveAlarms() {
@@ -687,6 +862,15 @@ function syncDayChips() {
   });
 }
 
+function alarmSortTime(alarm, now) {
+  if (snoozeUntil > now && snoozeInfo.alarmId === alarm.id) return snoozeUntil;
+  if (!alarm.enabled || (alarm.once && alarm.completed)) return Number.POSITIVE_INFINITY;
+  if (alarm.once) return alarm.fireAt > now ? alarm.fireAt : Number.POSITIVE_INFINITY;
+
+  const next = nextRingDate(alarm);
+  return next ? next.getTime() : Number.POSITIVE_INFINITY;
+}
+
 function renderAlarms() {
   list.replaceChildren();
   countBadge.textContent = String(alarms.length);
@@ -699,18 +883,21 @@ function renderAlarms() {
     return;
   }
 
+  const now = Date.now();
   alarms
     .slice()
     .sort((a, b) => {
-      if (a.once && b.once) return a.fireAt - b.fireAt;
-      if (a.once !== b.once) return a.once ? -1 : 1;
-      return a.time.localeCompare(b.time);
+      const timeDifference = alarmSortTime(a, now) - alarmSortTime(b, now);
+      return timeDifference || a.time.localeCompare(b.time);
     })
     .forEach((alarm) => {
       const item = document.createElement('li');
       item.className = 'alarm-item';
+      const isSnoozed = snoozeUntil > Date.now() && snoozeInfo.alarmId === alarm.id;
 
-      if (!alarm.enabled) item.classList.add('is-off');
+      if (!alarm.enabled && !isSnoozed) item.classList.add('is-off');
+      if (alarm.once && alarm.completed && !isSnoozed) item.classList.add('is-finished');
+      if (isSnoozed) item.classList.add('is-snoozed');
       if (alarm.id === editingId) item.classList.add('is-editing');
 
       const main = document.createElement('div');
@@ -734,7 +921,13 @@ function renderAlarms() {
 
       const schedule = document.createElement('span');
       schedule.className = 'alarm-every';
-      schedule.textContent = `${scheduleText(alarm)} · ${nextRingText(alarm)}`;
+      schedule.textContent = isSnoozed
+        ? t('snoozeInList').replace(
+          '{time}',
+          formatSnoozeRemaining(snoozeUntil - Date.now())
+        )
+        : `${scheduleText(alarm)} · ${nextRingText(alarm)}`;
+      if (isSnoozed) schedule.classList.add('is-snoozed');
 
       const meta = document.createElement('span');
       meta.className = 'alarm-meta';
@@ -745,9 +938,14 @@ function renderAlarms() {
           ? t('soundCustom')
           : t('soundBeep');
 
-      meta.textContent = `${alarm.notify ? '🔔' : '🔕'} ${soundLabel}`;
+      const notificationIcon = document.createElement('span');
+      notificationIcon.className = 'material-symbols-outlined alarm-notification-icon';
+      notificationIcon.textContent = alarm.notify ? 'notifications' : 'notifications_off';
+      notificationIcon.setAttribute('aria-hidden', 'true');
+      meta.append(notificationIcon, document.createTextNode(` ${soundLabel}`));
 
-      main.append(line, schedule, meta);
+      main.append(line, schedule);
+      if (!isSnoozed) main.append(meta);
 
       const actions = document.createElement('div');
       actions.className = 'alarm-actions';
@@ -774,16 +972,28 @@ function renderAlarms() {
       const edit = document.createElement('button');
       edit.type = 'button';
       edit.className = 'icon-button is-edit';
-      edit.textContent = '✎';
+      const editIcon = document.createElement('span');
+      editIcon.className = 'material-symbols-outlined';
+      editIcon.textContent = 'edit';
+      editIcon.setAttribute('aria-hidden', 'true');
+      edit.append(editIcon);
       edit.setAttribute('aria-label', t('editAria'));
       edit.addEventListener('click', () => startEdit(alarm));
 
       const remove = document.createElement('button');
       remove.type = 'button';
-      remove.className = 'icon-button';
-      remove.textContent = '×';
+      remove.className = 'icon-button is-delete';
+      const removeIcon = document.createElement('span');
+      removeIcon.className = 'material-symbols-outlined';
+      removeIcon.textContent = 'delete';
+      removeIcon.setAttribute('aria-hidden', 'true');
+      remove.append(removeIcon);
       remove.setAttribute('aria-label', t('deleteAria'));
       remove.addEventListener('click', () => {
+        if (snoozeInfo.alarmId === alarm.id) {
+          snoozeUntil = 0;
+          clearSnoozeState();
+        }
         alarms = alarms.filter((entry) => entry.id !== alarm.id);
         statusMessage.textContent = '';
         saveAlarms();
@@ -823,6 +1033,11 @@ function ensureAudio() {
     if (!AudioContextClass) return;
 
     if (!audioContext) audioContext = new AudioContextClass();
+    if (!audioOutputGain) {
+      audioOutputGain = audioContext.createGain();
+      audioOutputGain.gain.value = getAlarmOutputVolume();
+      audioOutputGain.connect(audioContext.destination);
+    }
     if (audioContext.state === 'suspended') audioContext.resume();
   } catch (error) {
     console.warn('Could not start audio.', error);
@@ -830,7 +1045,7 @@ function ensureAudio() {
 }
 
 function playTone(frequency, offset, duration, volume, type = 'sine') {
-  if (!audioContext) return;
+  if (!audioContext || alarmVolume === 0) return;
 
   const start = audioContext.currentTime + offset;
   const oscillator = audioContext.createOscillator();
@@ -843,7 +1058,7 @@ function playTone(frequency, offset, duration, volume, type = 'sine') {
   gain.gain.exponentialRampToValueAtTime(volume, start + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
 
-  oscillator.connect(gain).connect(audioContext.destination);
+  oscillator.connect(gain).connect(audioOutputGain || audioContext.destination);
   oscillator.start(start);
   oscillator.stop(start + duration + 0.02);
 }
@@ -901,16 +1116,24 @@ function startSound(sound) {
   const source = customSoundSource(sound);
 
   if (source) {
+    let audio;
+    const fallbackToDefault = (error) => {
+      if (audio && customAudio !== audio) return;
+      console.warn('Could not play custom alarm sound; using the default sound.', error);
+      statusMessage.textContent = t('soundPlayFailed');
+      stopSound();
+      startSound('beep');
+    };
+
     try {
-      customAudio = new Audio(source);
-      customAudio.loop = true;
-      customAudio.play().catch((error) => {
-        console.warn('Could not play custom alarm sound.', error);
-        statusMessage.textContent = t('soundPlayFailed');
-        stopSound();
-      });
+      audio = new Audio(source);
+      customAudio = audio;
+      audio.loop = true;
+      audio.volume = getAlarmOutputVolume();
+      audio.addEventListener('error', fallbackToDefault, { once: true });
+      audio.play().catch(fallbackToDefault);
     } catch (error) {
-      console.warn('Could not play custom sound.', error);
+      fallbackToDefault(error);
     }
     return;
   }
@@ -931,19 +1154,6 @@ function stopSound() {
     customAudio.pause();
     customAudio.currentTime = 0;
     customAudio = null;
-  }
-}
-
-function stopPreview() {
-  if (previewTimer !== null) {
-    window.clearTimeout(previewTimer);
-    previewTimer = null;
-  }
-
-  if (previewAudio) {
-    previewAudio.pause();
-    previewAudio.currentTime = 0;
-    previewAudio = null;
   }
 }
 
@@ -970,42 +1180,11 @@ function stopTest() {
   updateTestButton();
 }
 
-function previewSound(sound) {
-  stopPreview();
-  stopTest();
-
-  if (!sound || sound === 'none') return;
-
-  ensureAudio();
-
-  const source = customSoundSource(sound);
-
-  if (source) {
-    try {
-      previewAudio = new Audio(source);
-      previewAudio.addEventListener('ended', stopPreview);
-      previewAudio.play().catch((error) => {
-        console.warn('Could not preview custom sound.', error);
-        statusMessage.textContent = t('soundPlayFailed');
-        stopPreview();
-      });
-      previewTimer = window.setTimeout(stopPreview, 5000);
-    } catch (error) {
-      console.warn('Could not preview custom sound.', error);
-    }
-    return;
-  }
-
-  playSound(sound);
-}
-
 function toggleTest() {
   if (testPlaying) {
     stopTest();
     return;
   }
-
-  stopPreview();
 
   const sound = soundSelect ? soundSelect.value : 'beep';
   if (!sound || sound === 'none') return;
@@ -1021,6 +1200,7 @@ function toggleTest() {
     try {
       testAudio = new Audio(source);
       testAudio.loop = true;
+      testAudio.volume = getAlarmOutputVolume();
       testAudio.play().catch((error) => {
         console.warn('Could not test custom sound.', error);
         statusMessage.textContent = t('soundPlayFailed');
@@ -1077,7 +1257,6 @@ async function removeSelectedCustomSound() {
 
   customSounds = nextSounds;
   customSoundNames = nextNames;
-  stopPreview();
   stopTest();
   refreshCustomSoundOption();
   soundSelect.value = 'beep';
@@ -1100,7 +1279,13 @@ function triggerRing(time, label, alarm = null, info = null) {
       : true;
 
   ringing = true;
-  ringingInfo = { time, label: label || '', sound, notify };
+  ringingInfo = {
+    time,
+    label: label || '',
+    sound,
+    notify,
+    alarmId: alarm ? alarm.id : info && info.alarmId ? info.alarmId : null
+  };
   ringingTime.textContent = time;
 
   if (label) {
@@ -1112,8 +1297,7 @@ function triggerRing(time, label, alarm = null, info = null) {
   }
 
   overlay.hidden = false;
-  document.title = `🔔 ${time} | Time Tools`;
-  stopPreview();
+  document.title = `${time} | Time Tools`;
   stopTest();
   startSound(sound);
 
@@ -1143,12 +1327,18 @@ function stopRinging() {
 }
 
 function snoozeRinging() {
+  const selectedDuration = snoozeDurationMinutes;
   stopSound();
   overlay.hidden = true;
   ringing = false;
-  snoozeUntil = Date.now() + SNOOZE_MS;
+  snoozeUntil = Date.now() + selectedDuration * 60 * 1000;
   snoozeInfo = { ...ringingInfo };
-  statusMessage.textContent = t('snoozed');
+  saveSnoozeState();
+  statusMessage.textContent = t('snoozed').replace(
+    '{time}',
+    String(selectedDuration)
+  );
+  renderAlarms();
   document.title = `${t('title')} | Time Tools`;
 }
 
@@ -1339,6 +1529,10 @@ function renderFixedTimes() {
 function startEdit(alarm) {
   editingId = alarm.id;
   pendingFireAt = 0;
+  settingsToggle.setAttribute('aria-expanded', 'true');
+  settingsPanel.hidden = false;
+  scheduleToggle.setAttribute('aria-expanded', 'true');
+  schedulePanel.hidden = false;
 
   if (alarm.once && alarm.fireAt) {
     const fire = new Date(alarm.fireAt);
@@ -1390,6 +1584,15 @@ function currentTime(date) {
   return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+function formatSnoozeRemaining(milliseconds) {
+  const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return language === 'en'
+    ? `${minutes}:${pad(seconds)}`
+    : `${minutes}分${seconds}秒`;
+}
+
 function currentDayKey(date) {
   return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
@@ -1401,10 +1604,14 @@ function checkAlarms() {
 
   if (snoozeUntil > 0 && Date.now() >= snoozeUntil) {
     snoozeUntil = 0;
+    clearSnoozeState();
     statusMessage.textContent = '';
+    renderAlarms();
     triggerRing(snoozeInfo.time || currentTime(now), snoozeInfo.label, null, snoozeInfo);
     return;
   }
+
+  if (snoozeUntil > 0) renderAlarms();
 
   const time = currentTime(now);
   const dayKey = currentDayKey(now);
@@ -1491,8 +1698,54 @@ dateInput.addEventListener('input', () => {
 testButton.addEventListener('click', toggleTest);
 
 soundSelect.addEventListener('change', () => {
+  stopTest();
   updateSoundRemoveButton();
-  previewSound(soundSelect.value);
+});
+
+settingsToggle.addEventListener('click', () => {
+  const isExpanded = settingsToggle.getAttribute('aria-expanded') === 'true';
+  settingsToggle.setAttribute('aria-expanded', String(!isExpanded));
+  settingsPanel.hidden = isExpanded;
+
+  if (isExpanded) {
+    stopTest();
+  }
+});
+
+scheduleToggle.addEventListener('click', () => {
+  const isExpanded = scheduleToggle.getAttribute('aria-expanded') === 'true';
+  scheduleToggle.setAttribute('aria-expanded', String(!isExpanded));
+  schedulePanel.hidden = isExpanded;
+});
+
+snoozeDurationSelect.addEventListener('change', () => {
+  snoozeDurationError.hidden = true;
+  if (snoozeDurationSelect.value === 'custom') {
+    snoozeCustomMinutesInput.hidden = false;
+    snoozeCustomMinutesInput.value = String(snoozeDurationMinutes);
+    snoozeCustomMinutesInput.focus();
+    return;
+  }
+
+  saveSnoozeDuration(Number(snoozeDurationSelect.value));
+});
+
+snoozeCustomMinutesInput.addEventListener('change', () => {
+  const minutes = Number(snoozeCustomMinutesInput.value);
+  if (!Number.isInteger(minutes) || minutes < 1 || minutes > 60) {
+    snoozeCustomMinutesInput.value = String(snoozeDurationMinutes);
+    snoozeDurationSelect.value = 'custom';
+    snoozeCustomMinutesInput.hidden = false;
+    snoozeDurationError.textContent = t('snoozeInvalid');
+    snoozeDurationError.hidden = false;
+    return;
+  }
+
+  saveSnoozeDuration(minutes);
+});
+
+soundVolumeInput.addEventListener('input', () => {
+  updateAlarmVolume(soundVolumeInput.value);
 });
 
 if (soundRemoveButton) {
@@ -1548,8 +1801,29 @@ soundUrlInput.addEventListener('change', async () => {
 
   if (!value) return;
 
-  if (!/^https?:\/\//i.test(value)) {
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
     statusMessage.textContent = t('soundUrlInvalid');
+    return;
+  }
+
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+    statusMessage.textContent = t('soundUrlInvalid');
+    return;
+  }
+
+  const hostname = url.hostname.toLowerCase();
+  if (
+    hostname === 'youtu.be'
+    || hostname === 'youtube.com'
+    || hostname.endsWith('.youtube.com')
+    || hostname === 'spotify.com'
+    || hostname.endsWith('.spotify.com')
+    || hostname === 'spotify.link'
+  ) {
+    statusMessage.textContent = t('soundUrlUnsupported');
     return;
   }
 
@@ -1604,6 +1878,8 @@ document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
 });
 
 document.title = `${t('title')} | Time Tools`;
+updateSnoozeDurationControls();
+updateAlarmVolume(alarmVolume, false);
 
 (() => {
   const nextHour = new Date(Date.now() + 60 * 60 * 1000);
