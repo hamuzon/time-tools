@@ -49,7 +49,6 @@ const translations = {
     reached: '設定した日時になりました。',
     presetEndOfDay: '今日の終わり',
     presetEndOfMonth: '今月の終わり',
-    presetOneHour: '1時間後',
     presetNewYear: '元旦'
   },
   en: {
@@ -63,7 +62,6 @@ const translations = {
     reached: 'The target date and time has arrived.',
     presetEndOfDay: 'End of today',
     presetEndOfMonth: 'End of this month',
-    presetOneHour: 'In 1 hour',
     presetNewYear: 'New Year'
   }
 };
@@ -283,8 +281,6 @@ document.querySelectorAll('[data-preset]').forEach((button) => {
       endOfMonth.setMonth(endOfMonth.getMonth() + 1, 0);
       endOfMonth.setHours(23, 59, 59, 0);
       setTarget(endOfMonth);
-    } else if (preset === 'oneHour') {
-      setTarget(new Date(Date.now() + 60 * 60 * 1000));
     } else if (preset === 'newYear') {
       setTarget(nextNewYear());
     }

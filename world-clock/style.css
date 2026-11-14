@@ -833,16 +833,7 @@ input:focus-visible {
   font-size: clamp(1.15rem, 4.4vw, 1.35rem);
 }
 
-.world-clock-page .world-offset {
-  min-width: 0;
-  font-size: 0.72rem;
-}
-
 @media (max-width: 560px) {
-  .world-clock-page .world-offset {
-    display: block;
-  }
-
   .world-clock-page .world-row {
     padding: 11px 13px;
   }
@@ -907,14 +898,6 @@ input:focus-visible {
   font-variant-numeric: tabular-nums;
   font-weight: 750;
   letter-spacing: -0.02em;
-}
-
-.world-offset {
-  min-width: 56px;
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
 }
 
 /* Scrollbars */

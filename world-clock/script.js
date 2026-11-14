@@ -198,10 +198,6 @@ function createFormatters(timeZone) {
       day: 'numeric',
       weekday: 'short'
     }),
-    offset: new Intl.DateTimeFormat('en-US', {
-      timeZone,
-      timeZoneName: 'longOffset'
-    }),
     hour: new Intl.DateTimeFormat('en-US', {
       timeZone,
       hour: 'numeric',
@@ -215,16 +211,6 @@ const formatters = new Map();
 function getFormatters(timeZone) {
   if (!formatters.has(timeZone)) formatters.set(timeZone, createFormatters(timeZone));
   return formatters.get(timeZone);
-}
-
-function getOffset(timeZone, now) {
-  const part = getFormatters(timeZone)
-    .offset
-    .formatToParts(now)
-    .find((item) => item.type === 'timeZoneName');
-
-  const raw = part ? part.value : '';
-  return raw.replace('GMT', '') || '+00:00';
 }
 
 function getHour(timeZone, now) {
@@ -276,11 +262,7 @@ function buildRows() {
     time.className = 'world-time';
     time.textContent = '--:--:--';
 
-    const offset = document.createElement('span');
-    offset.className = 'world-offset';
-    offset.textContent = '';
-
-    timeBlock.append(time, offset);
+    timeBlock.append(time);
 
     row.append(cityBlock, timeBlock);
     list.append(row);
@@ -331,7 +313,6 @@ function update() {
 
     row.querySelector('.world-date').textContent = formatter.date.format(now);
     row.querySelector('.world-time').textContent = formatter.time.format(now);
-    row.querySelector('.world-offset').textContent = getOffset(timeZone, now);
   });
 }
 
