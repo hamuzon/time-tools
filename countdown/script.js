@@ -274,7 +274,7 @@ document.querySelectorAll('[data-preset]').forEach((button) => {
 
     if (preset === 'endOfDay') {
       const endOfDay = new Date();
-      endOfDay.setHours(23, 59, 0, 0);
+      endOfDay.setHours(23, 59, 59, 0);
       setTarget(endOfDay);
     } else if (preset === 'endOfMonth') {
       const endOfMonth = new Date();
