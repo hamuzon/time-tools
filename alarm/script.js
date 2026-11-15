@@ -41,11 +41,12 @@ const translations = {
   ja: {
     title: 'アラーム',
     timeLabel: '時刻',
-    dateLabel: '日付（任意）',
+    dateLabel: '日付（1回のみ）',
     datePast: '未来の日時を指定してください。',
     nameLabel: '名前（任意）',
     namePlaceholder: '起床',
     daysLabel: '繰り返す曜日',
+    repeatHint: '日付を指定しない場合、選択した曜日に繰り返します。',
     sun: '日',
     mon: '月',
     tue: '火',
@@ -82,7 +83,7 @@ const translations = {
     snooze10: '10分',
     snooze15: '15分',
     snooze30: '30分',
-    scheduleToolsLabel: '曜日・クイック設定',
+    scheduleToolsLabel: '曜日・時刻設定',
     added: '{time} のアラームを追加しました。',
     enabled: '{time} のアラームを有効にしました。',
     invalid: '時刻を指定してください。',
@@ -100,7 +101,7 @@ const translations = {
     finished: '終了',
     today: '今日',
     tomorrow: '明日',
-    quickLabel: '今から設定',
+    quickLabel: '簡単設定（一回だけ鳴らす）',
     quick10s: '10秒後',
     quick30s: '30秒後',
     quick1m: '1分後',
@@ -140,11 +141,12 @@ const translations = {
   en: {
     title: 'Alarm',
     timeLabel: 'Time',
-    dateLabel: 'Date (optional)',
+    dateLabel: 'Date (one-time)',
     datePast: 'Choose a future date and time.',
     nameLabel: 'Name (optional)',
     namePlaceholder: 'Wake up',
     daysLabel: 'Repeat on',
+    repeatHint: 'With no date set, the alarm repeats on the selected days.',
     sun: 'Sun',
     mon: 'Mon',
     tue: 'Tue',
@@ -181,7 +183,7 @@ const translations = {
     snooze10: '10 min',
     snooze15: '15 min',
     snooze30: '30 min',
-    scheduleToolsLabel: 'Repeat & quick options',
+    scheduleToolsLabel: 'Schedule & time options',
     added: 'Alarm set for {time}.',
     enabled: 'Alarm at {time} is enabled.',
     invalid: 'Please choose a time.',
@@ -199,7 +201,7 @@ const translations = {
     finished: 'Finished',
     today: 'Today',
     tomorrow: 'Tomorrow',
-    quickLabel: 'Set from now',
+    quickLabel: 'Quick setup (one-time alarm)',
     quick10s: '+10 sec',
     quick30s: '+30 sec',
     quick1m: '+1 min',
@@ -1597,6 +1599,32 @@ function currentDayKey(date) {
   return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
+function getDueRecurringOccurrence(alarm, now) {
+  const [hours, minutes] = alarm.time.split(':').map(Number);
+  const nowMs = now.getTime();
+
+  for (let offset = 0; offset <= 1; offset += 1) {
+    const occurrence = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() - offset,
+      hours,
+      minutes,
+      0,
+      0
+    );
+
+    if (!alarm.days.includes(occurrence.getDay())) continue;
+
+    const fireAt = occurrence.getTime();
+    if (fireAt <= nowMs && nowMs - fireAt < ONCE_WINDOW_MS) {
+      return currentDayKey(occurrence);
+    }
+  }
+
+  return null;
+}
+
 function checkAlarms() {
   if (ringing) return;
 
@@ -1613,9 +1641,6 @@ function checkAlarms() {
 
   if (snoozeUntil > 0) renderAlarms();
 
-  const time = currentTime(now);
-  const dayKey = currentDayKey(now);
-  const weekday = now.getDay();
   const nowMs = Date.now();
 
   const dueOnce = alarms.find(
@@ -1631,18 +1656,22 @@ function checkAlarms() {
     return;
   }
 
-  const due = alarms.filter(
-    (alarm) => alarm.enabled &&
-      !alarm.once &&
-      alarm.time === time &&
-      alarm.days.includes(weekday) &&
-      firedMinutes.get(alarm.id) !== dayKey
-  );
+  const due = alarms
+    .filter((alarm) => alarm.enabled && !alarm.once)
+    .map((alarm) => ({
+      alarm,
+      dateKey: getDueRecurringOccurrence(alarm, now)
+    }))
+    .filter(({ alarm, dateKey }) =>
+      dateKey && firedMinutes.get(alarm.id) !== dateKey
+    );
 
   if (due.length === 0) return;
 
-  due.forEach((alarm) => firedMinutes.set(alarm.id, dayKey));
-  triggerRing(displayTime(due[0]), due[0].label, due[0]);
+  due.forEach(({ alarm, dateKey }) => {
+    firedMinutes.set(alarm.id, dateKey);
+  });
+  triggerRing(displayTime(due[0].alarm), due[0].alarm.label, due[0].alarm);
 }
 
 dayChips.forEach((chip) => {

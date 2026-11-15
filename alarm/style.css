@@ -998,6 +998,12 @@ input:focus-visible {
   margin-top: 18px;
 }
 
+.weekday-hint {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
 .alarm-field-label {
   display: block;
   margin-bottom: 8px;
