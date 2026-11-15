@@ -45,12 +45,12 @@
         <div class="alarm-disclosure-toggles">
           <button class="alarm-settings-toggle" id="alarm-settings-toggle" type="button" aria-expanded="false" aria-controls="alarm-settings">
             <span class="material-symbols-outlined" aria-hidden="true">settings</span>
-            <span data-i18n="settingsLabel">設定</span>
+            <span data-i18n="settingsLabel">音設定</span>
             <span class="material-symbols-outlined alarm-settings-chevron" aria-hidden="true">expand_more</span>
           </button>
           <button class="alarm-settings-toggle alarm-schedule-toggle" id="alarm-schedule-toggle" type="button" aria-expanded="false" aria-controls="alarm-schedule-options">
             <span class="material-symbols-outlined" aria-hidden="true">event_repeat</span>
-            <span data-i18n="scheduleToolsLabel">曜日・クイック設定</span>
+            <span data-i18n="scheduleToolsLabel">曜日・時刻設定</span>
             <span class="material-symbols-outlined alarm-settings-chevron" aria-hidden="true">expand_more</span>
           </button>
         </div>
@@ -94,23 +94,6 @@
                 <output id="alarm-volume-value" for="alarm-volume">50%</output>
               </span>
             </label>
-            <label class="field snooze-duration-control">
-              <span data-i18n="snoozeDurationLabel">スヌーズ時間</span>
-              <span class="snooze-duration-inputs">
-                <select id="alarm-snooze-duration">
-                  <option value="1" data-i18n="snooze1">1分</option>
-                  <option value="3" data-i18n="snooze3">3分</option>
-                  <option value="5" data-i18n="snooze5">5分</option>
-                  <option value="10" data-i18n="snooze10">10分</option>
-                  <option value="15" data-i18n="snooze15">15分</option>
-                  <option value="30" data-i18n="snooze30">30分</option>
-                  <option value="custom" data-i18n="snoozeCustom">任意</option>
-                </select>
-                <input id="alarm-snooze-custom-minutes" type="number" min="1" max="60" step="1" value="5" data-i18n-aria="snoozeCustomAria" hidden />
-                <span class="snooze-duration-unit" data-i18n="snoozeUnit">分</span>
-              </span>
-              <span class="snooze-duration-error" id="alarm-snooze-duration-error" role="status" hidden></span>
-            </label>
             <div class="alarm-settings-actions">
               <button class="control-button quiet-button" id="alarm-test" type="button" data-i18n="testSound">音をテスト</button>
             </div>
@@ -135,8 +118,25 @@
             </div>
             <p class="weekday-hint" data-i18n="repeatHint">日付を指定しない場合、選択した曜日に繰り返します。</p>
           </div>
+          <label class="field snooze-duration-control">
+            <span data-i18n="snoozeDurationLabel">スヌーズ時間</span>
+            <span class="snooze-duration-inputs">
+              <select id="alarm-snooze-duration">
+                <option value="1" data-i18n="snooze1">1分</option>
+                <option value="3" data-i18n="snooze3">3分</option>
+                <option value="5" data-i18n="snooze5">5分</option>
+                <option value="10" data-i18n="snooze10">10分</option>
+                <option value="15" data-i18n="snooze15">15分</option>
+                <option value="30" data-i18n="snooze30">30分</option>
+                <option value="custom" data-i18n="snoozeCustom">任意</option>
+              </select>
+              <input id="alarm-snooze-custom-minutes" type="number" min="1" max="60" step="1" value="5" data-i18n-aria="snoozeCustomAria" hidden />
+              <span class="snooze-duration-unit" data-i18n="snoozeUnit">分</span>
+            </span>
+            <span class="snooze-duration-error" id="alarm-snooze-duration-error" role="status" hidden></span>
+          </label>
           <div class="quick-alarm">
-            <span class="alarm-field-label" data-i18n="quickLabel">今から追加</span>
+            <span class="alarm-field-label" data-i18n="quickLabel">簡単設定（一回だけ鳴らす）</span>
             <div class="quick-alarm-row">
               <button class="quick-alarm-button" type="button" data-seconds="10" data-i18n="quick10s">10秒後</button>
               <button class="quick-alarm-button" type="button" data-seconds="30" data-i18n="quick30s">30秒後</button>
