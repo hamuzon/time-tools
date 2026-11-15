@@ -240,15 +240,7 @@
       if (footerElement) footerElement.innerHTML = copyrightContent;
 
       const path = window.location.pathname.toLowerCase();
-      if (
-        hostname === 'hamuzon.github.io' &&
-        (
-          path === '/time-tools/test' ||
-          path.startsWith('/time-tools/test/')
-        )
-      ) {
-        window.location.replace('/time-tools/');
-      } else if (path.includes('readme') || path.includes('license')) {
+      if (path.includes('readme') || path.includes('license')) {
         window.location.replace('./');
       }
     </script>
