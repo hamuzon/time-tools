@@ -824,7 +824,7 @@ if (completed) {
   const footerElement = document.getElementById('footer-copy');
 
   const yearDisplay = currentYear > baseYear
-    ? `${baseYear}–${currentYear}`
+    ? `${baseYear} ~ ${currentYear}`
     : baseYear;
 
   let copyrightContent = '';

@@ -19,7 +19,7 @@ document.querySelectorAll('[data-tool-link]').forEach((link) => {
   const currentYear = new Date().getFullYear();
   const hostname = window.location.hostname;
   const footerElement = document.getElementById('footer-copy');
-  const yearDisplay = currentYear > baseYear ? `${baseYear}–${currentYear}` : baseYear;
+  const yearDisplay = currentYear > baseYear ? `${baseYear} ~ ${currentYear}` : baseYear;
   let copyrightContent = '';
 
   if (hostname === 'hamuzon.github.io') {
@@ -75,9 +75,36 @@ const t = (key) => translations[language][key];
 
 let localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 
-const TIME_API_BASE = window.location.hostname.endsWith('hamuzon-jp.f5.si')
-  ? 'https://api-time.hamuzon-jp.f5.si'
-  : 'https://api-time.hamusata.f5.si';
+function getTimeApiBases() {
+  const hostname = window.location.hostname;
+  const isHamuzon = hostname.includes('hamuzon-jp.f5.si');
+  const primary = isHamuzon
+    ? 'https://api-time.hamuzon-jp.f5.si'
+    : 'https://api-time.hamusata.f5.si';
+  const fallback = isHamuzon
+    ? 'https://api-time.hamusata.f5.si'
+    : 'https://api-time.hamuzon-jp.f5.si';
+  return [primary, fallback];
+}
+
+async function fetchFromTimeApi(pathAndQuery) {
+  const bases = getTimeApiBases();
+  let lastError = null;
+
+  for (const base of bases) {
+    try {
+      const response = await fetch(`${base}${pathAndQuery}`, { cache: 'no-store' });
+      if (response.ok) {
+        return await response.json();
+      }
+      lastError = new Error(`Time API at ${base} returned ${response.status}`);
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('All Time API endpoints failed.');
+}
 
 let clockOffset = 0;
 
@@ -156,11 +183,9 @@ async function syncCityTime(timeZone) {
   const startedAt = Date.now();
 
   try {
-    const endpoint = `${TIME_API_BASE}/api/Time/current/zone?timeZone=${encodeURIComponent(timeZone)}`;
-    const response = await fetch(endpoint, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`Timezone API returned ${response.status}.`);
-
-    const data = await response.json();
+    const data = await fetchFromTimeApi(
+      `/api/Time/current/zone?timeZone=${encodeURIComponent(timeZone)}`
+    );
     if (data.timeZone !== timeZone) {
       throw new Error(`Timezone API returned an unexpected time zone for ${timeZone}.`);
     }
@@ -271,10 +296,7 @@ function buildRows() {
 
 async function syncLocalTimeZone() {
   try {
-    const response = await fetch(`${TIME_API_BASE}/api/ip`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`Timezone API returned ${response.status}.`);
-
-    const data = await response.json();
+    const data = await fetchFromTimeApi('/api/ip');
     const timeZone = typeof data.timezone === 'string' ? data.timezone : '';
     if (!timeZone) throw new Error('Timezone API response did not include a timezone.');
 

@@ -912,11 +912,6 @@ input:focus-visible {
 
 /* Scrollbars */
 
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(109, 63, 192, 0.32) transparent;
-}
-
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;

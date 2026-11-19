@@ -193,7 +193,7 @@ function startStopwatch() {
   startButton.setAttribute('aria-pressed', 'true');
 
   lapButton.disabled = false;
-  resetButton.disabled = false;
+  resetButton.disabled = true;
 
   updateControlStyles();
   tick();
@@ -215,6 +215,7 @@ function pauseStopwatch() {
   startButton.setAttribute('aria-pressed', 'false');
 
   lapButton.disabled = true;
+  resetButton.disabled = false;
 
   updateControlStyles();
   saveState();
@@ -243,10 +244,7 @@ function addLap() {
 }
 
 function resetStopwatch() {
-  if (intervalId !== null) {
-    window.clearInterval(intervalId);
-    intervalId = null;
-  }
+  if (intervalId !== null) return;
 
   elapsedMs = 0;
   startedAt = 0;
@@ -280,7 +278,7 @@ startButton.classList.toggle('is-running', intervalId !== null);
 startButton.setAttribute('aria-pressed', String(intervalId !== null));
 
 lapButton.disabled = intervalId === null;
-resetButton.disabled = elapsedMs === 0 && laps.length === 0;
+resetButton.disabled = intervalId !== null || (elapsedMs === 0 && laps.length === 0);
 
 updateControlStyles();
 
@@ -292,7 +290,7 @@ if (intervalId === null) saveState();
   const hostname = window.location.hostname;
   const footerElement = document.getElementById('footer-copy');
   const yearDisplay = currentYear > baseYear
-    ? `${baseYear}–${currentYear}`
+    ? `${baseYear} ~ ${currentYear}`
     : baseYear;
 
   let copyrightContent = '';

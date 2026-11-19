@@ -19,7 +19,7 @@ document.querySelectorAll('[data-tool-link]').forEach((link) => {
   const currentYear = new Date().getFullYear();
   const hostname = window.location.hostname;
   const footerElement = document.getElementById('footer-copy');
-  const yearDisplay = currentYear > baseYear ? `${baseYear}–${currentYear}` : baseYear;
+  const yearDisplay = currentYear > baseYear ? `${baseYear} ~ ${currentYear}` : baseYear;
   let copyrightContent = '';
 
   if (hostname === 'hamuzon.github.io') {
@@ -40,6 +40,7 @@ document.querySelectorAll('[data-tool-link]').forEach((link) => {
 const translations = {
   ja: {
     title: 'アラーム',
+    nowLabel: '現在時刻',
     timeLabel: '時刻',
     dateLabel: '日付（1回のみ）',
     datePast: '未来の日時を指定してください。',
@@ -64,7 +65,6 @@ const translations = {
     testStop: 'テストを停止',
     listTitle: 'アラーム一覧',
     empty: 'アラームはまだありません。',
-    hint: 'アラームはこのページを開いている間だけ鳴ります。通知を許可すると、ほかのタブを見ていても知らせが届きます。',
     ringing: 'アラーム',
     stop: '停止',
     snooze: 'スヌーズ',
@@ -94,9 +94,47 @@ const translations = {
     updated: '{time} のアラームを更新しました。',
     duplicate: '同じ時刻と曜日のアラームがすでにあります。',
     enableNotifications: '通知を許可',
+    notifyTitle: '通知',
+    notifyOn: 'ON',
+    notifyOff: 'OFF',
     notifyGranted: '通知は有効です。ほかのタブを見ていても知らせが届きます。',
     notifyDenied: '通知がブロックされています。ブラウザの設定から許可してください。',
     notifyPrompt: '通知を許可すると、ほかのタブを見ていても知らせが届きます。',
+    notifySettingsLabel: '通知設定',
+    notifyTitleLabel: '通知タイトル',
+    notifyTitlePlaceholder: 'アラーム',
+    notifyBodyLabel: '通知メッセージ',
+    notifyImageLabel: '通知画像URL',
+    notifyImageFileLabel: '画像ファイル',
+    notifyImageClear: '画像を削除',
+    notifyReset: '既定に戻す',
+    notifyTemplateGroupAria: '通知メッセージのテンプレート',
+    notifyTemplateTime: '時刻',
+    notifyTemplateName: '名前',
+    notifyTemplateTimeName: '時刻＋名前',
+    notifyPreviewLabel: 'プレビュー',
+    notifyPreviewSampleLabel: '起床',
+    notifyImageTooLarge: '画像は{limit}MB以下にしてください。',
+    notifyImageInvalid: '画像のURLを確認してください。',
+    notifyImageLoaded: '通知画像を設定しました。',
+    notifyImageRemoved: '通知画像を削除しました。',
+    notifySaveFailed: '通知設定を保存できませんでした。',
+    notifyResetDone: '通知のカスタマイズを既定に戻しました。',
+    notifyOffHint: '通知はオフです。スイッチをONにすると、ほかのタブを見ていても知らせが届きます。',
+    notifyTurnedOn: '通知をオンにしました。',
+    notifyTurnedOff: '通知をオフにしました。',
+    notifyEnableAria: 'このアラームの通知をオンにする',
+    notifyDisableAria: 'このアラームの通知をオフにする',
+    notifyEnabledForAlarm: 'このアラームの通知をオンにしました。',
+    notifyDisabledForAlarm: 'このアラームの通知をオフにしました。',
+    notifyPermissionNeeded: 'このアラームの通知をオンにするには、通知の許可が必要です。',
+    testNotification: 'テスト通知',
+    testNotificationTitle: 'テスト通知',
+    testNotificationBody: '通知は正常に届いています。',
+    testNotificationSent: 'テスト通知を送信しました。',
+    testNotificationFailed: 'テスト通知を送信できませんでした。通知が許可されているか確認してください。',
+    notifyClose: '通知を閉じる',
+    notifyClosed: '通知を閉じました。',
     nextRing: '次',
     finished: '終了',
     today: '今日',
@@ -134,12 +172,19 @@ const translations = {
     soundSaveFailed: '音声ファイルを保存できませんでした。',
     soundRemoveAria: '選択中のカスタム音を削除',
     soundRemoved: 'カスタム音を削除しました。',
-    notifyLabel: '通知する',
+    notifyLabel: 'ブラウザ通知',
+    soundEnabledLabel: 'アラーム音を鳴らす',
+    soundEnabledForAlarm: 'このアラームの音をオンにしました。',
+    soundDisabledForAlarm: 'このアラームの音をオフにしました。',
+    soundEnableAria: 'このアラームの音をオンにする',
+    soundDisableAria: 'このアラームの音をオフにする',
+    soundShort: '音',
     once: '1回だけ',
     addedOnce: '{time} に1回だけ鳴ります。'
   },
   en: {
     title: 'Alarm',
+    nowLabel: 'Current time',
     timeLabel: 'Time',
     dateLabel: 'Date (one-time)',
     datePast: 'Choose a future date and time.',
@@ -164,7 +209,6 @@ const translations = {
     testStop: 'Stop test',
     listTitle: 'Alarms',
     empty: 'No alarms yet.',
-    hint: 'Alarms only ring while this page stays open. Allow notifications to be alerted while you are in another tab.',
     ringing: 'Alarm',
     stop: 'Stop',
     snooze: 'Snooze',
@@ -194,9 +238,47 @@ const translations = {
     updated: 'Alarm at {time} updated.',
     duplicate: 'An alarm with the same time and days already exists.',
     enableNotifications: 'Allow notifications',
+    notifyTitle: 'Notifications',
+    notifyOn: 'ON',
+    notifyOff: 'OFF',
     notifyGranted: 'Notifications are on. You will be alerted from other tabs too.',
     notifyDenied: 'Notifications are blocked. Allow them in your browser settings.',
     notifyPrompt: 'Allow notifications to be alerted while you are in another tab.',
+    notifySettingsLabel: 'Notification settings',
+    notifyTitleLabel: 'Notification title',
+    notifyTitlePlaceholder: 'Alarm',
+    notifyBodyLabel: 'Notification message',
+    notifyImageLabel: 'Notification image URL',
+    notifyImageFileLabel: 'Image file',
+    notifyImageClear: 'Remove image',
+    notifyReset: 'Reset to defaults',
+    notifyTemplateGroupAria: 'Notification message templates',
+    notifyTemplateTime: 'Time',
+    notifyTemplateName: 'Name',
+    notifyTemplateTimeName: 'Time + name',
+    notifyPreviewLabel: 'Preview',
+    notifyPreviewSampleLabel: 'Wake up',
+    notifyImageTooLarge: 'Choose an image no larger than {limit} MB.',
+    notifyImageInvalid: 'Enter a valid image URL.',
+    notifyImageLoaded: 'Notification image set.',
+    notifyImageRemoved: 'Notification image removed.',
+    notifySaveFailed: 'Could not save the notification settings.',
+    notifyResetDone: 'Notification customization reset to defaults.',
+    notifyOffHint: 'Notifications are off. Turn the switch ON to be alerted from other tabs.',
+    notifyTurnedOn: 'Notifications turned on.',
+    notifyTurnedOff: 'Notifications turned off.',
+    notifyEnableAria: 'Turn notifications on for this alarm',
+    notifyDisableAria: 'Turn notifications off for this alarm',
+    notifyEnabledForAlarm: 'Notifications turned on for this alarm.',
+    notifyDisabledForAlarm: 'Notifications turned off for this alarm.',
+    notifyPermissionNeeded: 'Allow notifications to turn on alerts for this alarm.',
+    testNotification: 'Test notification',
+    testNotificationTitle: 'Test notification',
+    testNotificationBody: 'Notifications are working.',
+    testNotificationSent: 'Test notification sent.',
+    testNotificationFailed: 'Could not send the test notification. Check that notifications are allowed.',
+    notifyClose: 'Close notifications',
+    notifyClosed: 'Notifications closed.',
     nextRing: 'Next',
     finished: 'Finished',
     today: 'Today',
@@ -234,52 +316,240 @@ const translations = {
     soundSaveFailed: 'Could not save the sound file.',
     soundRemoveAria: 'Remove the selected custom sound',
     soundRemoved: 'Custom sound removed.',
-    notifyLabel: 'Notify',
+    notifyLabel: 'Browser notifications',
+    soundEnabledLabel: 'Play alarm sound',
+    soundEnabledForAlarm: 'Sound turned on for this alarm.',
+    soundDisabledForAlarm: 'Sound turned off for this alarm.',
+    soundEnableAria: 'Turn sound on for this alarm',
+    soundDisableAria: 'Turn sound off for this alarm',
+    soundShort: 'Sound',
     once: 'Once',
     addedOnce: 'One-time alarm set for {time}.'
   }
 };
 
+const NOTIFICATION_ENABLED_KEY = 'time-tools-alarm-notify-enabled-v1';
+const NOTIFICATION_SETTINGS_KEY = 'time-tools-alarm-notification-settings-v1';
+const NOTIFICATION_PANEL_KEY = 'time-tools-alarm-notify-panel-open-v1';
+const NOTIFICATION_MESSAGE_TYPE = 'time-tools-alarm-notification';
+const MAX_NOTIFICATION_IMAGE_BYTES = 1024 * 1024;
+
 const notifications = (() => {
   const supported = typeof window.Notification !== 'undefined';
+  const serviceWorkerSupported = 'serviceWorker' in navigator;
+  const pageNotifications = new Set();
+  let enabled = loadEnabled();
+  let registrationPromise = null;
+
+  function loadEnabled() {
+    try {
+      const saved = window.localStorage.getItem(NOTIFICATION_ENABLED_KEY);
+      if (saved !== null) return saved === 'true';
+      return false;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function setEnabled(value) {
+    enabled = value === true;
+
+    try {
+      window.localStorage.setItem(NOTIFICATION_ENABLED_KEY, String(enabled));
+    } catch (error) {
+      console.warn('Could not save the notification setting.', error);
+    }
+  }
 
   function getPermission() {
     return supported ? window.Notification.permission : 'unsupported';
   }
 
+  function isEnabled() {
+    return enabled;
+  }
+
+  function isActive() {
+    return enabled && getPermission() === 'granted';
+  }
+
+  function registerServiceWorker() {
+    if (!serviceWorkerSupported) return Promise.resolve(null);
+    if (window.location.protocol !== 'http:' && window.location.protocol !== 'https:') {
+      return Promise.resolve(null);
+    }
+
+    if (!registrationPromise) {
+      registrationPromise = navigator.serviceWorker
+        .register('./sw.js', { scope: './', updateViaCache: 'none' })
+        .then(() => navigator.serviceWorker.ready)
+        .catch((error) => {
+          console.warn('Could not register the notification service worker.', error);
+          registrationPromise = null;
+          return null;
+        });
+    }
+
+    return registrationPromise;
+  }
+
   function request() {
     if (!supported) return Promise.resolve('unsupported');
 
-    try {
-      return window.Notification.requestPermission();
-    } catch (error) {
-      console.warn('Could not request notification permission.', error);
-      return Promise.resolve('denied');
-    }
+    const currentPermission = getPermission();
+    if (currentPermission !== 'default') return Promise.resolve(currentPermission);
+
+    return new Promise((resolve) => {
+      let settled = false;
+      const done = (perm) => {
+        if (settled) return;
+        settled = true;
+        const finalPerm = perm || getPermission();
+        if (finalPerm === 'granted') registerServiceWorker();
+        resolve(finalPerm);
+      };
+
+      try {
+        const result = window.Notification.requestPermission(done);
+        if (result && typeof result.then === 'function') {
+          result.then(done).catch(() => done(getPermission()));
+        }
+      } catch (error) {
+        console.warn('Could not request notification permission.', error);
+        done(getPermission());
+      }
+    });
   }
 
-  function show(title, options = {}) {
-    if (!supported || window.Notification.permission !== 'granted') return false;
+  async function show(title, options = {}) {
+    if (!supported) return false;
+
+    if (getPermission() !== 'granted') {
+      const permission = await request();
+      if (permission !== 'granted') return false;
+    }
+
+    if (!enabled) {
+      setEnabled(true);
+    }
+
+    const iconUrl = new URL('../icon.png', window.location.href).href;
+    const notificationOptions = {
+      icon: iconUrl,
+      badge: iconUrl,
+      data: { url: window.location.href },
+      ...options
+    };
+
+    let registration = null;
+    if (serviceWorkerSupported && (window.location.protocol === 'http:' || window.location.protocol === 'https:')) {
+      try {
+        registration = await Promise.race([
+          registerServiceWorker(),
+          new Promise((resolve) => setTimeout(() => resolve(null), 400))
+        ]);
+      } catch (e) {
+        registration = null;
+      }
+    }
+
+    if (registration) {
+      try {
+        await registration.showNotification(title, notificationOptions);
+        return true;
+      } catch (error) {
+        console.warn('Could not show a service worker notification.', error);
+        if (notificationOptions.image) {
+          try {
+            const { image, ...fallbackOptions } = notificationOptions;
+            await registration.showNotification(title, fallbackOptions);
+            return true;
+          } catch (e2) {}
+        }
+      }
+    }
 
     try {
-      const notification = new window.Notification(title, {
-        icon: '../icon.png',
-        ...options
-      });
+      const pageNotification = new window.Notification(title, notificationOptions);
+      pageNotifications.add(pageNotification);
 
-      notification.addEventListener('click', () => {
+      pageNotification.addEventListener('click', () => {
         window.focus();
-        notification.close();
+        pageNotification.close();
+      });
+      pageNotification.addEventListener('close', () => {
+        pageNotifications.delete(pageNotification);
       });
 
       return true;
     } catch (error) {
       console.warn('Could not show notification.', error);
+      if (notificationOptions.image) {
+        try {
+          const { image, ...fallbackOptions } = notificationOptions;
+          const pageNotification = new window.Notification(title, fallbackOptions);
+          pageNotifications.add(pageNotification);
+          pageNotification.addEventListener('click', () => {
+            window.focus();
+            pageNotification.close();
+          });
+          pageNotification.addEventListener('close', () => {
+            pageNotifications.delete(pageNotification);
+          });
+          return true;
+        } catch (e2) {}
+      }
       return false;
     }
   }
 
-  return { supported, getPermission, request, show };
+  function closePageNotifications() {
+    pageNotifications.forEach((notification) => {
+      try {
+        notification.close();
+      } catch (error) {
+        // The notification may already be closed.
+      }
+    });
+    pageNotifications.clear();
+  }
+
+  async function closeAll() {
+    closePageNotifications();
+
+    if (!serviceWorkerSupported) return;
+
+    try {
+      navigator.serviceWorker.controller?.postMessage({
+        type: NOTIFICATION_MESSAGE_TYPE,
+        action: 'close-all'
+      });
+    } catch (error) {
+      console.warn('Could not ask the service worker to close notifications.', error);
+    }
+
+    try {
+      const registration = await registerServiceWorker();
+      if (!registration || typeof registration.getNotifications !== 'function') return;
+
+      const displayed = await registration.getNotifications();
+      displayed.forEach((notification) => notification.close());
+    } catch (error) {
+      console.warn('Could not close notifications.', error);
+    }
+  }
+
+  return {
+    supported,
+    getPermission,
+    isEnabled,
+    isActive,
+    setEnabled,
+    request,
+    show,
+    closeAll,
+    registerServiceWorker
+  };
 })();
 
 const STORAGE_KEY = 'time-tools-alarms-v1';
@@ -288,15 +558,16 @@ const CUSTOM_SOUND_NAMES_KEY = 'time-tools-alarm-custom-sound-names-v1';
 const ALARM_VOLUME_KEY = 'time-tools-alarm-volume-v1';
 const SNOOZE_DURATION_KEY = 'time-tools-alarm-snooze-duration-v1';
 const SNOOZE_STATE_KEY = 'time-tools-alarm-snooze-state-v1';
+const FIRED_ALARMS_KEY = 'time-tools-alarm-fired-v1';
 const SOUND_DB_NAME = 'time-tools-alarm-sounds-v1';
 const SOUND_DB_STORE = 'files';
 const MAX_SOUND_FILE_BYTES = 50 * 1024 * 1024;
 const DEFAULT_ALARM_VOLUME = 50;
 const MAX_ALARM_OUTPUT_GAIN = 0.35;
-const ONCE_WINDOW_MS = 90 * 1000;
+const ONCE_WINDOW_MS = 5 * 60 * 1000;
 const DEFAULT_FIXED_TIMES = ['06:00', '07:00', '08:00', '09:00', '12:00', '18:00', '21:00', '22:00'];
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-const SOUND_KEYS = ['beep', 'chime', 'bell', 'alarm', 'digital', 'gong', 'chirp', 'none'];
+const SOUND_KEYS = ['beep', 'chime', 'bell', 'alarm', 'digital', 'gong', 'chirp'];
 const SOUND_LABEL_KEYS = {
   beep: 'soundBeep',
   chime: 'soundChime',
@@ -329,6 +600,9 @@ const settingsPanel = document.getElementById('alarm-settings');
 const scheduleToggle = document.getElementById('alarm-schedule-toggle');
 const schedulePanel = document.getElementById('alarm-schedule-options');
 const notifyInput = document.getElementById('alarm-notify');
+const alarmNotifyState = document.getElementById('alarm-notify-state');
+const soundEnabledInput = document.getElementById('alarm-sound-enabled');
+const alarmSoundEnabledState = document.getElementById('alarm-sound-enabled-state');
 const addButton = document.getElementById('alarm-add');
 const cancelButton = document.getElementById('alarm-cancel');
 const testButton = document.getElementById('alarm-test');
@@ -336,6 +610,20 @@ const statusMessage = document.getElementById('alarm-status');
 const notifyRow = document.getElementById('notify-row');
 const notifyStatus = document.getElementById('notify-status');
 const notifyButton = document.getElementById('notify-enable');
+const notifyToggle = document.getElementById('notify-toggle');
+const notifyTestButton = document.getElementById('notify-test');
+const notifyCloseButton = document.getElementById('notify-close');
+const notifySettingsToggle = document.getElementById('notify-settings-toggle');
+const notifyTitleInput = document.getElementById('notify-title-input');
+const notifyBodyInput = document.getElementById('notify-body-input');
+const notifyPreviewIcon = document.getElementById('notify-preview-icon');
+const notifyPreviewTitle = document.getElementById('notify-preview-title');
+const notifyPreviewBody = document.getElementById('notify-preview-body');
+const notifyImageUrlInput = document.getElementById('notify-image-url');
+const notifyImageFileInput = document.getElementById('notify-image-file');
+const notifyImagePreview = document.getElementById('notify-image-preview');
+const notifyImageClearButton = document.getElementById('notify-image-clear');
+const notifyResetButton = document.getElementById('notify-reset');
 const overlay = document.getElementById('alarm-overlay');
 const ringingTime = document.getElementById('alarm-ringing-time');
 const ringingLabel = document.getElementById('alarm-ringing-label');
@@ -351,6 +639,28 @@ const dayFormatter = new Intl.DateTimeFormat(locale, {
   day: 'numeric',
   weekday: 'short'
 });
+
+const clockDateFormatter = new Intl.DateTimeFormat(locale, {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  weekday: 'short'
+});
+
+const clockTimeDisplay = document.getElementById('alarm-clock-time');
+const clockDateDisplay = document.getElementById('alarm-clock-date');
+
+function updateClock() {
+  const now = new Date();
+
+  if (clockTimeDisplay) {
+    clockTimeDisplay.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  }
+
+  if (clockDateDisplay) {
+    clockDateDisplay.textContent = clockDateFormatter.format(now);
+  }
+}
 
 let alarms = loadAlarms();
 const fixedTimes = DEFAULT_FIXED_TIMES.slice();
@@ -370,6 +680,8 @@ let audioOutputGain = null;
 let alarmVolume = loadAlarmVolume();
 let soundTimer = null;
 let customAudio = null;
+let notifyRequesting = false;
+let notificationSettings = loadNotificationSettings();
 let testPlaying = false;
 let testTimer = null;
 let testAudio = null;
@@ -377,7 +689,7 @@ let customSounds = loadCustomSounds();
 let customSoundNames = loadCustomSoundNames();
 let indexedDbSoundKeys = new Set();
 let customSoundRestorePromise = Promise.resolve();
-const firedMinutes = new Map();
+const firedMinutes = loadFiredOccurrences();
 
 function createId() {
   return `alarm-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
@@ -434,6 +746,7 @@ function loadAlarms() {
       .map((item) => {
         const fireAt = Number(item.fireAt);
         const once = item.once === true && Number.isFinite(fireAt) && fireAt > 0;
+        const savedSound = typeof item.sound === 'string' && item.sound ? item.sound : 'beep';
 
         return {
           id: typeof item.id === 'string' ? item.id : createId(),
@@ -444,8 +757,9 @@ function loadAlarms() {
           once,
           fireAt: once ? fireAt : 0,
           completed: once && item.completed === true,
-          sound: typeof item.sound === 'string' && item.sound ? item.sound : 'beep',
-          notify: item.notify !== false
+          sound: savedSound === 'none' ? 'beep' : savedSound,
+          soundEnabled: item.soundEnabled !== false && savedSound !== 'none',
+          notify: item.notify === true
         };
       });
   } catch (error) {
@@ -469,6 +783,131 @@ function loadAlarmVolume() {
   }
 }
 
+function loadNotificationSettings() {
+  const empty = { title: '', body: '', image: '' };
+
+  try {
+    const raw = window.localStorage.getItem(NOTIFICATION_SETTINGS_KEY);
+    if (!raw) return empty;
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return empty;
+
+    return {
+      title: typeof parsed.title === 'string' ? parsed.title.slice(0, 60) : '',
+      body: typeof parsed.body === 'string' ? parsed.body.slice(0, 160) : '',
+      image: typeof parsed.image === 'string' ? parsed.image : ''
+    };
+  } catch (error) {
+    console.warn('Could not restore notification settings.', error);
+    return empty;
+  }
+}
+
+function saveNotificationSettings() {
+  try {
+    window.localStorage.setItem(
+      NOTIFICATION_SETTINGS_KEY,
+      JSON.stringify(notificationSettings)
+    );
+    return true;
+  } catch (error) {
+    console.warn('Could not save notification settings.', error);
+    return false;
+  }
+}
+
+function loadNotifyPanelOpen() {
+  try {
+    return window.localStorage.getItem(NOTIFICATION_PANEL_KEY) === 'true';
+  } catch (error) {
+    return false;
+  }
+}
+
+function setNotifyPanelOpen(open, persist = true) {
+  if (!notifySettingsToggle || !notifyRow) return;
+
+  notifySettingsToggle.setAttribute('aria-expanded', String(open));
+  notifyRow.hidden = !open;
+
+  if (persist) {
+    try {
+      window.localStorage.setItem(NOTIFICATION_PANEL_KEY, String(open));
+    } catch (error) {
+      console.warn('Could not save the notification panel state.', error);
+    }
+  }
+}
+
+function fillNotificationTemplate(template, time, label) {
+  return template
+    .replace(/\{time\}/g, time)
+    .replace(/\{label\}/g, label || '')
+    .replace(/\{name\}/g, label || '');
+}
+
+function buildNotificationContent(time, label, fallbackTitle, fallbackBody) {
+  const titleTemplate = (notificationSettings.title || '').trim() || fallbackTitle;
+  const bodyTemplate = (notificationSettings.body || '').trim() || fallbackBody;
+  const title = fillNotificationTemplate(titleTemplate, time, label).trim() || fallbackTitle;
+  const body = fillNotificationTemplate(bodyTemplate, time, label).trim() || fallbackBody;
+  const customImage = (notificationSettings.image || '').trim();
+
+  return {
+    title,
+    body,
+    icon: customImage || new URL('../icon.png', window.location.href).href,
+    image: customImage
+  };
+}
+
+function updateNotificationPreview() {
+  if (!notifyPreviewTitle || !notifyPreviewBody) return;
+
+  const now = new Date();
+  const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const typedLabel = labelInput ? labelInput.value.trim().slice(0, 24) : '';
+  const sampleLabel = typedLabel || t('notifyPreviewSampleLabel');
+  const content = buildNotificationContent(
+    time,
+    sampleLabel,
+    t('ringing'),
+    `${time} · ${sampleLabel}`
+  );
+
+  notifyPreviewTitle.textContent = content.title;
+  notifyPreviewBody.textContent = content.body;
+
+  if (notifyPreviewIcon && content.icon) notifyPreviewIcon.src = content.icon;
+}
+
+function renderNotificationImage() {
+  if (!notifyImagePreview) return;
+
+  const image = notificationSettings.image;
+
+  if (!image) {
+    notifyImagePreview.hidden = true;
+    notifyImagePreview.removeAttribute('src');
+    if (notifyImageUrlInput) notifyImageUrlInput.value = '';
+    if (notifyImageClearButton) notifyImageClearButton.disabled = true;
+    return;
+  }
+
+  notifyImagePreview.src = image;
+  notifyImagePreview.hidden = false;
+  if (notifyImageClearButton) notifyImageClearButton.disabled = false;
+  if (notifyImageUrlInput && /^https?:/i.test(image)) notifyImageUrlInput.value = image;
+}
+
+function applyNotificationSettingsToForm() {
+  if (notifyTitleInput) notifyTitleInput.value = notificationSettings.title;
+  if (notifyBodyInput) notifyBodyInput.value = notificationSettings.body;
+  renderNotificationImage();
+  updateNotificationPreview();
+}
+
 function loadSnoozeDuration() {
   try {
     const saved = Number(window.localStorage.getItem(SNOOZE_DURATION_KEY));
@@ -477,6 +916,45 @@ function loadSnoozeDuration() {
     console.warn('Could not restore snooze duration.', error);
     return 5;
   }
+}
+
+function loadFiredOccurrences() {
+  const occurrences = new Map();
+
+  try {
+    const raw = window.localStorage.getItem(FIRED_ALARMS_KEY);
+    if (!raw) return occurrences;
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return occurrences;
+
+    Object.entries(parsed).forEach(([id, dateKey]) => {
+      if (typeof dateKey === 'string' && /^\d{4}-\d{1,2}-\d{1,2}$/.test(dateKey)) {
+        occurrences.set(id, dateKey);
+      }
+    });
+  } catch (error) {
+    console.warn('Could not restore fired alarms.', error);
+  }
+
+  return occurrences;
+}
+
+function saveFiredOccurrences() {
+  try {
+    window.localStorage.setItem(
+      FIRED_ALARMS_KEY,
+      JSON.stringify(Object.fromEntries(firedMinutes))
+    );
+  } catch (error) {
+    console.warn('Could not save fired alarms.', error);
+  }
+}
+
+function clearFiredOccurrence(id) {
+  if (!firedMinutes.has(id)) return;
+  firedMinutes.delete(id);
+  saveFiredOccurrences();
 }
 
 function loadSnoozeState() {
@@ -940,14 +1418,43 @@ function renderAlarms() {
           ? t('soundCustom')
           : t('soundBeep');
 
-      const notificationIcon = document.createElement('span');
-      notificationIcon.className = 'material-symbols-outlined alarm-notification-icon';
-      notificationIcon.textContent = alarm.notify ? 'notifications' : 'notifications_off';
-      notificationIcon.setAttribute('aria-hidden', 'true');
-      meta.append(notificationIcon, document.createTextNode(` ${soundLabel}`));
+      meta.textContent = soundLabel;
 
-      main.append(line, schedule);
-      if (!isSnoozed) main.append(meta);
+      const toggles = document.createElement('div');
+      toggles.className = 'alarm-toggles';
+
+      const notifyChip = document.createElement('button');
+      notifyChip.type = 'button';
+      notifyChip.className = `alarm-toggle${alarm.notify ? ' is-on' : ''}`;
+      notifyChip.setAttribute('aria-pressed', String(alarm.notify));
+      notifyChip.setAttribute('aria-label', t(alarm.notify ? 'notifyDisableAria' : 'notifyEnableAria'));
+      const notifyChipIcon = document.createElement('span');
+      notifyChipIcon.className = 'material-symbols-outlined';
+      notifyChipIcon.textContent = alarm.notify ? 'notifications_active' : 'notifications_off';
+      notifyChipIcon.setAttribute('aria-hidden', 'true');
+      const notifyChipText = document.createElement('span');
+      notifyChipText.textContent = `${t('notifyTitle')} ${t(alarm.notify ? 'notifyOn' : 'notifyOff')}`;
+      notifyChip.append(notifyChipIcon, notifyChipText);
+      notifyChip.addEventListener('click', () => toggleAlarmNotify(alarm));
+
+      const soundOn = alarm.soundEnabled !== false;
+      const soundChip = document.createElement('button');
+      soundChip.type = 'button';
+      soundChip.className = `alarm-toggle${soundOn ? ' is-on' : ''}`;
+      soundChip.setAttribute('aria-pressed', String(soundOn));
+      soundChip.setAttribute('aria-label', t(soundOn ? 'soundDisableAria' : 'soundEnableAria'));
+      const soundChipIcon = document.createElement('span');
+      soundChipIcon.className = 'material-symbols-outlined';
+      soundChipIcon.textContent = soundOn ? 'volume_up' : 'volume_off';
+      soundChipIcon.setAttribute('aria-hidden', 'true');
+      const soundChipText = document.createElement('span');
+      soundChipText.textContent = `${t('soundShort')} ${t(soundOn ? 'notifyOn' : 'notifyOff')}`;
+      soundChip.append(soundChipIcon, soundChipText);
+      soundChip.addEventListener('click', () => toggleAlarmSound(alarm));
+
+      toggles.append(notifyChip, soundChip);
+
+      main.append(line, schedule, meta, toggles);
 
       const actions = document.createElement('div');
       actions.className = 'alarm-actions';
@@ -996,6 +1503,7 @@ function renderAlarms() {
           snoozeUntil = 0;
           clearSnoozeState();
         }
+        clearFiredOccurrence(alarm.id);
         alarms = alarms.filter((entry) => entry.id !== alarm.id);
         statusMessage.textContent = '';
         saveAlarms();
@@ -1008,24 +1516,161 @@ function renderAlarms() {
     });
 }
 
+function updateAlarmNotifyState() {
+  if (!notifyInput || !alarmNotifyState) return;
+
+  const isOn = notifyInput.checked;
+  alarmNotifyState.textContent = t(isOn ? 'notifyOn' : 'notifyOff');
+  alarmNotifyState.classList.toggle('is-on', isOn);
+}
+
+function updateSoundEnabledState() {
+  if (!soundEnabledInput || !alarmSoundEnabledState) return;
+
+  const isOn = soundEnabledInput.checked;
+  alarmSoundEnabledState.textContent = t(isOn ? 'notifyOn' : 'notifyOff');
+  alarmSoundEnabledState.classList.toggle('is-on', isOn);
+}
+
 function updateNotifyRow() {
+  if (!notifyRow) return;
+
   if (!notifications.supported) {
+    if (notifySettingsToggle) notifySettingsToggle.hidden = true;
     notifyRow.hidden = true;
     return;
   }
 
+  if (notifySettingsToggle) notifySettingsToggle.hidden = false;
+
   const permission = notifications.getPermission();
-  notifyRow.hidden = false;
+  const isActive = notifications.isActive();
+
+  if (notifyToggle) {
+    notifyToggle.checked = isActive;
+    notifyToggle.disabled = notifyRequesting || permission === 'denied';
+  }
+
+
+
+  if (notifyButton) {
+    notifyButton.hidden = permission !== 'default' || notifyRequesting;
+    notifyButton.disabled = notifyRequesting;
+  }
+
+  if (notifyTestButton) {
+    notifyTestButton.hidden = false;
+    notifyTestButton.disabled = permission === 'denied';
+  }
+  if (notifyCloseButton) notifyCloseButton.hidden = false;
+
+  const notifyBadge = document.getElementById('notify-badge');
+  if (notifyBadge) {
+    if (permission === 'denied') {
+      notifyBadge.textContent = 'ブロック中';
+      notifyBadge.className = 'alarm-settings-badge is-danger';
+    } else if (permission === 'default') {
+      notifyBadge.textContent = '未許可';
+      notifyBadge.className = 'alarm-settings-badge is-warn';
+    } else if (!isActive) {
+      notifyBadge.textContent = 'OFF';
+      notifyBadge.className = 'alarm-settings-badge';
+    } else {
+      notifyBadge.textContent = 'ON';
+      notifyBadge.className = 'alarm-settings-badge is-on';
+    }
+  }
+
+  if (permission === 'denied') {
+    notifyStatus.textContent = t('notifyDenied');
+  } else if (permission === 'default') {
+    notifyStatus.textContent = t('notifyPrompt');
+  } else if (!isActive) {
+    notifyStatus.textContent = t('notifyOffHint');
+  } else {
+    notifyStatus.textContent = t('notifyGranted');
+  }
+}
+
+async function enableNotifications() {
+  if (!notifications.supported || notifyRequesting) return;
+
+  notifyRequesting = true;
+  updateNotifyRow();
+
+  try {
+    const permission = await notifications.request();
+
+    if (permission === 'granted') {
+      notifications.setEnabled(true);
+      await notifications.registerServiceWorker();
+      statusMessage.textContent = t('notifyTurnedOn');
+    } else {
+      notifications.setEnabled(false);
+      notifications.closeAll();
+      statusMessage.textContent = permission === 'denied'
+        ? t('notifyDenied')
+        : t('notifyPermissionNeeded');
+    }
+  } finally {
+    notifyRequesting = false;
+    updateNotifyRow();
+  }
+}
+
+function disableNotifications() {
+  notifications.setEnabled(false);
+  notifications.closeAll();
+  statusMessage.textContent = t('notifyTurnedOff');
+  updateNotifyRow();
+}
+
+async function toggleAlarmNotify(alarm) {
+  alarm.notify = !alarm.notify;
+  saveAlarms();
+
+  if (alarm.notify) {
+    const permission = notifications.getPermission();
+
+    if (permission === 'granted') {
+      notifications.setEnabled(true);
+      await notifications.registerServiceWorker();
+      statusMessage.textContent = t('notifyEnabledForAlarm');
+    } else if (permission === 'default') {
+      await enableNotifications();
+    } else {
+      statusMessage.textContent = t(
+        permission === 'unsupported' ? 'notifyDenied' : 'notifyPermissionNeeded'
+      );
+    }
+  } else {
+    statusMessage.textContent = t('notifyDisabledForAlarm');
+  }
+
+  renderAlarms();
+  updateNotifyRow();
+}
+
+function toggleAlarmSound(alarm) {
+  alarm.soundEnabled = alarm.soundEnabled === false;
+  saveAlarms();
+  statusMessage.textContent = t(
+    alarm.soundEnabled ? 'soundEnabledForAlarm' : 'soundDisabledForAlarm'
+  );
+  renderAlarms();
+}
+
+function maybeEnableNotificationsForAlarm() {
+  if (!notifyInput || !notifyInput.checked) return;
+
+  const permission = notifications.getPermission();
 
   if (permission === 'granted') {
-    notifyStatus.textContent = t('notifyGranted');
-    notifyButton.hidden = true;
-  } else if (permission === 'denied') {
-    notifyStatus.textContent = t('notifyDenied');
-    notifyButton.hidden = true;
-  } else {
-    notifyStatus.textContent = t('notifyPrompt');
-    notifyButton.hidden = false;
+    if (!notifications.isEnabled()) notifications.setEnabled(true);
+    notifications.registerServiceWorker();
+    updateNotifyRow();
+  } else if (permission === 'default') {
+    enableNotifications();
   }
 }
 
@@ -1279,12 +1924,18 @@ function triggerRing(time, label, alarm = null, info = null) {
     : alarm
       ? alarm.notify !== false
       : true;
+  const soundEnabled = info && typeof info.soundEnabled === 'boolean'
+    ? info.soundEnabled
+    : alarm
+      ? alarm.soundEnabled !== false
+      : true;
 
   ringing = true;
   ringingInfo = {
     time,
     label: label || '',
-    sound,
+    sound: soundEnabled ? sound : 'none',
+    soundEnabled,
     notify,
     alarmId: alarm ? alarm.id : info && info.alarmId ? info.alarmId : null
   };
@@ -1301,13 +1952,25 @@ function triggerRing(time, label, alarm = null, info = null) {
   overlay.hidden = false;
   document.title = `${time} | Time Tools`;
   stopTest();
-  startSound(sound);
+  startSound(ringingInfo.sound);
 
   if (notify) {
-    notifications.show(t('ringing'), {
-      body: label ? `${time} · ${label}` : time,
+    const content = buildNotificationContent(
+      time,
+      label || '',
+      t('ringing'),
+      label ? `${time} · ${label}` : time
+    );
+
+    notifications.show(content.title, {
+      body: content.body,
+      icon: content.icon,
+      ...(content.image ? { image: content.image } : {}),
       tag: 'time-tools-alarm',
-      requireInteraction: true
+      actions: [
+        { action: 'stop', title: t('stop') },
+        { action: 'snooze', title: t('snooze') }
+      ]
     });
   }
 
@@ -1323,6 +1986,7 @@ function triggerRing(time, label, alarm = null, info = null) {
 
 function stopRinging() {
   stopSound();
+  notifications.closeAll();
   overlay.hidden = true;
   ringing = false;
   document.title = `${t('title')} | Time Tools`;
@@ -1331,6 +1995,7 @@ function stopRinging() {
 function snoozeRinging() {
   const selectedDuration = snoozeDurationMinutes;
   stopSound();
+  notifications.closeAll();
   overlay.hidden = true;
   ringing = false;
   snoozeUntil = Date.now() + selectedDuration * 60 * 1000;
@@ -1354,7 +2019,8 @@ function commitOnceAlarm(fireDate, label) {
     fireAt: fireDate.getTime(),
     completed: false,
     sound: soundSelect ? soundSelect.value : 'beep',
-    notify: notifyInput ? notifyInput.checked : true
+    soundEnabled: soundEnabledInput ? soundEnabledInput.checked : true,
+    notify: notifyInput ? notifyInput.checked : false
   };
 
   let message = '';
@@ -1377,6 +2043,7 @@ function commitOnceAlarm(fireDate, label) {
   saveAlarms();
   resetForm();
   statusMessage.textContent = message;
+  maybeEnableNotificationsForAlarm();
 }
 
 function addAlarm() {
@@ -1433,11 +2100,13 @@ function addAlarm() {
     duplicate.enabled = true;
     if (label) duplicate.label = label;
     duplicate.sound = soundSelect.value;
+    duplicate.soundEnabled = soundEnabledInput.checked;
     duplicate.notify = notifyInput.checked;
     labelInput.value = '';
     statusMessage.textContent = t('enabled').replace('{time}', time);
     saveAlarms();
     renderAlarms();
+    maybeEnableNotificationsForAlarm();
     return;
   }
 
@@ -1457,7 +2126,9 @@ function addAlarm() {
       target.fireAt = 0;
       target.completed = false;
       target.sound = soundSelect.value;
+      target.soundEnabled = soundEnabledInput.checked;
       target.notify = notifyInput.checked;
+      clearFiredOccurrence(target.id);
       statusMessage.textContent = t('updated').replace('{time}', time);
     }
   } else {
@@ -1471,6 +2142,7 @@ function addAlarm() {
       fireAt: 0,
       completed: false,
       sound: soundSelect.value,
+      soundEnabled: soundEnabledInput.checked,
       notify: notifyInput.checked
     });
     statusMessage.textContent = t('added').replace('{time}', time);
@@ -1478,6 +2150,7 @@ function addAlarm() {
 
   saveAlarms();
   resetForm();
+  maybeEnableNotificationsForAlarm();
 }
 
 function displayTime(alarm) {
@@ -1552,9 +2225,12 @@ function startEdit(alarm) {
 
   soundSelect.value = desiredSound;
   if (soundSelect.value !== desiredSound) soundSelect.value = 'beep';
-  notifyInput.checked = alarm.notify !== false;
+  notifyInput.checked = alarm.notify === true;
+  soundEnabledInput.checked = alarm.soundEnabled !== false;
   selectedDays = new Set(alarm.days);
 
+  updateAlarmNotifyState();
+  updateSoundEnabledState();
   syncDayChips();
   addButton.textContent = t('save');
   cancelButton.hidden = false;
@@ -1575,6 +2251,8 @@ function resetForm() {
   labelInput.value = '';
   dateInput.value = '';
   selectedDays = new Set(ALL_DAYS);
+  if (notifyInput) notifyInput.checked = false;
+  updateAlarmNotifyState();
 
   syncDayChips();
   addButton.textContent = t('add');
@@ -1631,11 +2309,17 @@ function checkAlarms() {
   const now = new Date();
 
   if (snoozeUntil > 0 && Date.now() >= snoozeUntil) {
+    const snoozedAlarm = alarms.find((alarm) => alarm.id === snoozeInfo.alarmId) || null;
     snoozeUntil = 0;
     clearSnoozeState();
     statusMessage.textContent = '';
     renderAlarms();
-    triggerRing(snoozeInfo.time || currentTime(now), snoozeInfo.label, null, snoozeInfo);
+    triggerRing(
+      snoozeInfo.time || currentTime(now),
+      snoozeInfo.label,
+      snoozedAlarm,
+      snoozedAlarm ? null : snoozeInfo
+    );
     return;
   }
 
@@ -1671,6 +2355,7 @@ function checkAlarms() {
   due.forEach(({ alarm, dateKey }) => {
     firedMinutes.set(alarm.id, dateKey);
   });
+  saveFiredOccurrences();
   triggerRing(displayTime(due[0].alarm), due[0].alarm.label, due[0].alarm);
 }
 
@@ -1877,10 +2562,229 @@ soundUrlInput.addEventListener('change', async () => {
   statusMessage.textContent = t('soundUrlLoaded');
 });
 
-notifyButton.addEventListener('click', async () => {
-  await notifications.request();
-  updateNotifyRow();
+notifyInput.addEventListener('change', updateAlarmNotifyState);
+soundEnabledInput.addEventListener('change', updateSoundEnabledState);
+
+if (notifyButton) {
+  notifyButton.addEventListener('click', () => {
+    enableNotifications();
+  });
+}
+
+if (notifySettingsToggle) {
+  notifySettingsToggle.addEventListener('click', () => {
+    const isOpen = notifySettingsToggle.getAttribute('aria-expanded') === 'true';
+    setNotifyPanelOpen(!isOpen);
+  });
+}
+
+if (notifyToggle) {
+  notifyToggle.addEventListener('change', () => {
+    if (notifyToggle.checked) enableNotifications();
+    else disableNotifications();
+  });
+}
+
+if (notifyTitleInput) {
+  notifyTitleInput.addEventListener('input', () => {
+    notificationSettings.title = notifyTitleInput.value.slice(0, 60);
+    saveNotificationSettings();
+    updateNotificationPreview();
+  });
+}
+
+if (notifyBodyInput) {
+  notifyBodyInput.addEventListener('input', () => {
+    notificationSettings.body = notifyBodyInput.value.slice(0, 160);
+    saveNotificationSettings();
+    updateNotificationPreview();
+  });
+}
+
+document.querySelectorAll('[data-template]').forEach((button) => {
+  button.addEventListener('click', () => {
+    if (!notifyBodyInput) return;
+
+    const template = button.dataset.template || '';
+    const isFocused = document.activeElement === notifyBodyInput;
+
+    if (isFocused) {
+      const start = notifyBodyInput.selectionStart ?? notifyBodyInput.value.length;
+      const end = notifyBodyInput.selectionEnd ?? start;
+      notifyBodyInput.setRangeText(template, start, end, 'end');
+    } else {
+      notifyBodyInput.value = template;
+    }
+
+    notifyBodyInput.dispatchEvent(new Event('input', { bubbles: true }));
+    notifyBodyInput.focus();
+  });
 });
+
+if (notifyImageUrlInput) {
+  notifyImageUrlInput.addEventListener('change', () => {
+    const value = notifyImageUrlInput.value.trim();
+
+    if (!value) {
+      if (notificationSettings.image && /^https?:/i.test(notificationSettings.image)) {
+        notificationSettings.image = '';
+        saveNotificationSettings();
+        renderNotificationImage();
+        statusMessage.textContent = t('notifyImageRemoved');
+      }
+      return;
+    }
+
+    let url;
+    try {
+      url = new URL(value);
+    } catch (error) {
+      statusMessage.textContent = t('notifyImageInvalid');
+      return;
+    }
+
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      statusMessage.textContent = t('notifyImageInvalid');
+      return;
+    }
+
+    notificationSettings.image = value;
+    saveNotificationSettings();
+    renderNotificationImage();
+    statusMessage.textContent = t('notifyImageLoaded');
+  });
+}
+
+if (notifyImageFileInput) {
+  notifyImageFileInput.addEventListener('change', async () => {
+    const file = notifyImageFileInput.files && notifyImageFileInput.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      statusMessage.textContent = t('notifyImageInvalid');
+      notifyImageFileInput.value = '';
+      return;
+    }
+
+    if (file.size > MAX_NOTIFICATION_IMAGE_BYTES) {
+      statusMessage.textContent = t('notifyImageTooLarge').replace(
+        '{limit}',
+        String(MAX_NOTIFICATION_IMAGE_BYTES / (1024 * 1024))
+      );
+      notifyImageFileInput.value = '';
+      return;
+    }
+
+    try {
+      const source = await readSoundFile(file);
+      const previousImage = notificationSettings.image;
+
+      notificationSettings.image = source;
+
+      if (!saveNotificationSettings()) {
+        notificationSettings.image = previousImage;
+        statusMessage.textContent = t('notifySaveFailed');
+        return;
+      }
+
+      if (notifyImageUrlInput) notifyImageUrlInput.value = '';
+      renderNotificationImage();
+      statusMessage.textContent = t('notifyImageLoaded');
+    } catch (error) {
+      console.warn('Could not load the notification image.', error);
+      statusMessage.textContent = t('notifyImageInvalid');
+    } finally {
+      notifyImageFileInput.value = '';
+    }
+  });
+}
+
+if (notifyImageClearButton) {
+  notifyImageClearButton.addEventListener('click', () => {
+    notificationSettings.image = '';
+    saveNotificationSettings();
+    renderNotificationImage();
+    statusMessage.textContent = t('notifyImageRemoved');
+  });
+}
+
+if (notifyResetButton) {
+  notifyResetButton.addEventListener('click', () => {
+    notificationSettings = { title: '', body: '', image: '' };
+
+    if (!saveNotificationSettings()) {
+      statusMessage.textContent = t('notifySaveFailed');
+      return;
+    }
+
+    applyNotificationSettingsToForm();
+    statusMessage.textContent = t('notifyResetDone');
+  });
+}
+
+if (notifyCloseButton) {
+  notifyCloseButton.addEventListener('click', () => {
+    if (ringing) {
+      stopRinging();
+    } else {
+      notifications.closeAll();
+    }
+    statusMessage.textContent = t('notifyClosed');
+  });
+}
+
+if (notifyTestButton) {
+  notifyTestButton.addEventListener('click', async () => {
+    try {
+      if (notifications.getPermission() !== 'granted') {
+        const permission = await notifications.request();
+        if (permission === 'granted') {
+          notifications.setEnabled(true);
+          updateNotifyRow();
+        } else {
+          statusMessage.textContent = permission === 'denied'
+            ? t('notifyDenied')
+            : t('notifyPermissionNeeded');
+          updateNotifyRow();
+          return;
+        }
+      }
+
+      const now = new Date();
+      const content = buildNotificationContent(
+        `${pad(now.getHours())}:${pad(now.getMinutes())}`,
+        '',
+        t('testNotificationTitle'),
+        t('testNotificationBody')
+      );
+
+      const shown = await notifications.show(content.title, {
+        body: content.body,
+        icon: content.icon,
+        ...(content.image ? { image: content.image } : {}),
+        tag: 'time-tools-alarm-test'
+      });
+      statusMessage.textContent = shown
+        ? t('testNotificationSent')
+        : t('testNotificationFailed');
+      updateNotifyRow();
+    } catch (err) {
+      console.warn('Test notification execution failed:', err);
+      statusMessage.textContent = t('testNotificationFailed');
+      updateNotifyRow();
+    }
+  });
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    const data = event.data;
+    if (!data || data.type !== NOTIFICATION_MESSAGE_TYPE) return;
+
+    if (data.action === 'stop' && ringing) stopRinging();
+    else if (data.action === 'snooze' && ringing) snoozeRinging();
+  });
+}
 
 stopButton.addEventListener('click', stopRinging);
 snoozeButton.addEventListener('click', snoozeRinging);
@@ -1890,6 +2794,13 @@ document.addEventListener('keydown', (event) => {
 });
 
 document.addEventListener('pointerdown', ensureAudio, { once: true });
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) checkAlarms();
+});
+
+window.addEventListener('focus', checkAlarms);
+window.addEventListener('pageshow', checkAlarms);
 
 document.querySelectorAll('[data-i18n]').forEach((element) => {
   const value = t(element.dataset.i18n);
@@ -1907,8 +2818,12 @@ document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
 });
 
 document.title = `${t('title')} | Time Tools`;
+updateClock();
+window.setInterval(updateClock, 1000);
 updateSnoozeDurationControls();
 updateAlarmVolume(alarmVolume, false);
+updateAlarmNotifyState();
+updateSoundEnabledState();
 
 (() => {
   const nextHour = new Date(Date.now() + 60 * 60 * 1000);
@@ -1919,7 +2834,12 @@ syncDayChips();
 renderFixedTimes();
 refreshCustomSoundOption();
 customSoundRestorePromise = restoreCustomFileSounds();
+applyNotificationSettingsToForm();
+setNotifyPanelOpen(loadNotifyPanelOpen(), false);
 renderAlarms();
 updateNotifyRow();
+
+if (notifications.isActive()) notifications.registerServiceWorker();
+
 window.setInterval(checkAlarms, 1000);
 window.setInterval(renderAlarms, 60000);

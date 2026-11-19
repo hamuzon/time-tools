@@ -19,7 +19,7 @@ document.querySelectorAll('[data-tool-link]').forEach((link) => {
   const currentYear = new Date().getFullYear();
   const hostname = window.location.hostname;
   const footerElement = document.getElementById('footer-copy');
-  const yearDisplay = currentYear > baseYear ? `${baseYear}–${currentYear}` : baseYear;
+  const yearDisplay = currentYear > baseYear ? `${baseYear} ~ ${currentYear}` : baseYear;
   let copyrightContent = '';
 
   if (hostname === 'hamuzon.github.io') {
