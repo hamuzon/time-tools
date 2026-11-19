@@ -56,10 +56,19 @@
           <button class="preset-button" type="button" data-preset="endOfMonth" data-i18n="presetEndOfMonth">今月の終わり</button>
           <button class="preset-button" type="button" data-preset="newYear" data-i18n="presetNewYear">元旦</button>
         </div>
-        <label class="field">
-          <span data-i18n="targetInputLabel">目標日時を設定</span>
-          <input id="countdown-target" type="datetime-local" step="1" />
-        </label>
+        <div class="countdown-inputs">
+          <p class="countdown-inputs-title" id="countdown-inputs-title" data-i18n="targetInputLabel">目標日時を設定</p>
+          <div class="countdown-inputs-grid" role="group" aria-labelledby="countdown-inputs-title">
+            <label class="field">
+              <span data-i18n="targetDateLabel">日付</span>
+              <input id="countdown-date" type="date" />
+            </label>
+            <label class="field">
+              <span data-i18n="targetTimeLabel">時刻</span>
+              <input id="countdown-time" type="time" step="1" />
+            </label>
+          </div>
+        </div>
       </section>
       <footer class="copyright app-copyright">
         <div id="footer-copy"></div>

@@ -42,6 +42,8 @@ const translations = {
     title: 'カウントダウン',
     targetLabel: '目標日時',
     targetInputLabel: '目標日時を設定',
+    targetDateLabel: '日付',
+    targetTimeLabel: '時刻',
     days: '日',
     hours: '時間',
     minutes: '分',
@@ -55,6 +57,8 @@ const translations = {
     title: 'Countdown',
     targetLabel: 'Target',
     targetInputLabel: 'Set the target date and time',
+    targetDateLabel: 'Date',
+    targetTimeLabel: 'Time',
     days: 'Days',
     hours: 'Hours',
     minutes: 'Minutes',
@@ -112,7 +116,8 @@ const STORAGE_KEY = 'time-tools-countdown-target-v1';
 const locale = language === 'en' ? 'en-US' : 'ja-JP';
 const t = (key) => translations[language][key];
 
-const targetInput = document.getElementById('countdown-target');
+const dateInput = document.getElementById('countdown-date');
+const timeInput = document.getElementById('countdown-time');
 const targetLabel = document.getElementById('countdown-target-label');
 const daysDisplay = document.getElementById('countdown-days');
 const hoursDisplay = document.getElementById('countdown-hours');
@@ -138,8 +143,50 @@ function pad(value) {
   return String(value).padStart(2, '0');
 }
 
-function toDateTimeLocal(date) {
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+const supportsTimeSeconds = (() => {
+  const probe = document.createElement('input');
+  probe.type = 'time';
+  probe.value = '00:00:00';
+  return probe.value === '00:00:00';
+})();
+
+function toDateValue(date) {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function toTimeValue(date) {
+  const base = `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  return supportsTimeSeconds ? `${base}:${pad(date.getSeconds())}` : base;
+}
+
+function syncInputs(date) {
+  dateInput.value = toDateValue(date);
+  timeInput.value = toTimeValue(date);
+}
+
+function readInputs() {
+  if (!dateInput.value || !timeInput.value) return null;
+
+  const [year, month, day] = dateInput.value.split('-').map(Number);
+  const [hours, minutes, seconds = 0] = timeInput.value.split(':').map(Number);
+
+  if ([year, month, day, hours, minutes, seconds].some((value) => !Number.isFinite(value))) {
+    return null;
+  }
+
+  const next = new Date(year, month - 1, day, hours, minutes, seconds, 0);
+
+  if (
+    next.getFullYear() !== year ||
+    next.getMonth() !== month - 1 ||
+    next.getDate() !== day ||
+    next.getHours() !== hours ||
+    next.getMinutes() !== minutes
+  ) {
+    return null;
+  }
+
+  return next;
 }
 
 function nextNewYear() {
@@ -251,7 +298,7 @@ function updateDisplay() {
 function setTarget(date) {
   target = date;
   reachedNotified = false;
-  targetInput.value = toDateTimeLocal(target);
+  syncInputs(target);
   saveTarget();
   ensureAudio();
 
@@ -262,10 +309,15 @@ function setTarget(date) {
   updateDisplay();
 }
 
-targetInput.addEventListener('change', () => {
-  const next = new Date(targetInput.value);
-  if (Number.isNaN(next.getTime())) return;
-  setTarget(next);
+[dateInput, timeInput].forEach((input) => {
+  input.addEventListener('change', () => {
+    const next = readInputs();
+    if (!next) {
+      syncInputs(target);
+      return;
+    }
+    setTarget(next);
+  });
 });
 
 document.querySelectorAll('[data-preset]').forEach((button) => {
@@ -294,6 +346,6 @@ document.querySelectorAll('[data-i18n]').forEach((element) => {
 
 document.title = `${t('title')} | Time Tools`;
 
-targetInput.value = toDateTimeLocal(target);
+syncInputs(target);
 updateDisplay();
 window.setInterval(updateDisplay, 250);
