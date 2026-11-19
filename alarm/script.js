@@ -464,7 +464,7 @@ const notifications = (() => {
             const { image, ...fallbackOptions } = notificationOptions;
             await registration.showNotification(title, fallbackOptions);
             return true;
-          } catch (e2) {}
+          } catch (e2) { }
         }
       }
     }
@@ -497,7 +497,7 @@ const notifications = (() => {
             pageNotifications.delete(pageNotification);
           });
           return true;
-        } catch (e2) {}
+        } catch (e2) { }
       }
       return false;
     }
@@ -2251,8 +2251,6 @@ function resetForm() {
   labelInput.value = '';
   dateInput.value = '';
   selectedDays = new Set(ALL_DAYS);
-  if (notifyInput) notifyInput.checked = false;
-  updateAlarmNotifyState();
 
   syncDayChips();
   addButton.textContent = t('add');
