@@ -40,15 +40,21 @@ document.querySelectorAll('[data-tool-link]').forEach((link) => {
 const translations = {
   ja: {
     title: '世界時計',
-    yourZone: 'あなたのタイムゾーン',
+    yourZone: '端末時間',
+    currentLocation: '現在地',
+    ipLocation: '現在地',
     listLabel: '世界の現在時刻',
-    localBadge: '現在地'
+    localBadge: '端末時間',
+    unknownZone: '取得できません'
   },
   en: {
     title: 'World Clock',
-    yourZone: 'Your time zone',
+    yourZone: 'Device time',
+    currentLocation: 'Current location',
+    ipLocation: 'Current location',
     listLabel: 'Current times around the world',
-    localBadge: 'Local'
+    localBadge: 'Device time',
+    unknownZone: 'Unavailable'
   }
 };
 
@@ -68,12 +74,76 @@ const CITIES = [
 
 const locale = language === 'en' ? 'en-US' : 'ja-JP';
 const list = document.getElementById('world-list');
+const localZoneLabel = document.getElementById('local-zone-label');
 const localZone = document.getElementById('local-zone');
 const localTime = document.getElementById('local-time');
 const localDate = document.getElementById('local-date');
+const ipClock = document.getElementById('ip-clock');
+const ipZone = document.getElementById('ip-zone');
+const ipTime = document.getElementById('ip-time');
 const t = (key) => translations[language][key];
 
-let localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+function detectTimeZone() {
+  try {
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (timeZone) {
+      new Intl.DateTimeFormat('en-US', { timeZone });
+      return timeZone;
+    }
+  } catch (error) {
+    console.warn('Could not read the device time zone.', error);
+  }
+
+  return '';
+}
+
+function isValidTimeZone(timeZone) {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+let localTimeZone = detectTimeZone();
+let ipTimeZone = '';
+
+const offsetFormatters = new Map();
+
+function getOffsetMinutes(timeZone, date) {
+  if (!offsetFormatters.has(timeZone)) {
+    offsetFormatters.set(timeZone, new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      timeZoneName: 'longOffset'
+    }));
+  }
+
+  const part = offsetFormatters.get(timeZone)
+    .formatToParts(date)
+    .find((entry) => entry.type === 'timeZoneName');
+  const match = /^GMT(?:([+-])(\d{2}):(\d{2}))?$/.exec(part ? part.value : '');
+  if (!match) return null;
+  if (!match[1]) return 0;
+
+  const sign = match[1] === '-' ? -1 : 1;
+  return sign * (Number(match[2]) * 60 + Number(match[3]));
+}
+
+// IPで取得したタイムゾーンと端末のタイムゾーンで同じ時刻なら true
+function sameTimeAsIpZone() {
+  if (!ipTimeZone || !localTimeZone) return false;
+  if (ipTimeZone === localTimeZone) return true;
+
+  try {
+    const now = clockNow();
+    const ipOffset = getOffsetMinutes(ipTimeZone, now);
+    const localOffset = getOffsetMinutes(localTimeZone, now);
+    return ipOffset !== null && ipOffset === localOffset;
+  } catch {
+    return false;
+  }
+}
 
 function getTimeApiBases() {
   const hostname = window.location.hostname;
@@ -87,23 +157,21 @@ function getTimeApiBases() {
   return [primary, fallback];
 }
 
-async function fetchFromTimeApi(pathAndQuery) {
-  const bases = getTimeApiBases();
-  let lastError = null;
-
-  for (const base of bases) {
+async function fetchTimeApiJson(pathAndQuery) {
+  for (const base of getTimeApiBases()) {
     try {
       const response = await fetch(`${base}${pathAndQuery}`, { cache: 'no-store' });
-      if (response.ok) {
-        return await response.json();
+      if (!response.ok) {
+        console.warn(`Time API at ${base} returned ${response.status}.`);
+        continue;
       }
-      lastError = new Error(`Time API at ${base} returned ${response.status}`);
-    } catch (err) {
-      lastError = err;
+      return await response.json();
+    } catch (error) {
+      console.warn(`Time API request to ${base} failed.`, error);
     }
   }
 
-  throw lastError || new Error('All Time API endpoints failed.');
+  return null;
 }
 
 let clockOffset = 0;
@@ -179,26 +247,92 @@ function getServerTimestamp(data, timeZone) {
   return timestamp;
 }
 
-async function syncCityTime(timeZone) {
+// /api/Time/current/zone?timeZone=... でタイムゾーンごとの時刻を取得して補正する
+async function syncZoneTime(timeZone) {
+  if (!timeZone) return false;
+
   const startedAt = Date.now();
+  const data = await fetchTimeApiJson(
+    `/api/Time/current/zone?timeZone=${encodeURIComponent(timeZone)}`
+  );
+  if (!data) return false;
+
+  if (data.timeZone !== timeZone) {
+    console.warn(`Timezone API returned an unexpected time zone for ${timeZone}.`);
+    return false;
+  }
 
   try {
-    const data = await fetchFromTimeApi(
-      `/api/Time/current/zone?timeZone=${encodeURIComponent(timeZone)}`
-    );
-    if (data.timeZone !== timeZone) {
-      throw new Error(`Timezone API returned an unexpected time zone for ${timeZone}.`);
-    }
-
     const serverMs = getServerTimestamp(data, timeZone);
-
     const finishedAt = Date.now();
     clockOffset = serverMs + (finishedAt - startedAt) / 2 - finishedAt;
-
     update();
+    return true;
   } catch (error) {
     console.warn(`Could not sync time for ${timeZone}.`, error);
+    return false;
   }
+}
+
+// /now でエポックミリ秒を取得して補正する
+async function syncNow() {
+  for (const base of getTimeApiBases()) {
+    try {
+      const startedAt = Date.now();
+      const response = await fetch(`${base}/now`, { cache: 'no-store' });
+      if (!response.ok) {
+        console.warn(`Time API at ${base} returned ${response.status}.`);
+        continue;
+      }
+
+      const serverMs = Number((await response.text()).trim());
+      if (!Number.isFinite(serverMs)) {
+        console.warn(`Time API at ${base} returned an invalid timestamp.`);
+        continue;
+      }
+
+      const finishedAt = Date.now();
+      clockOffset = serverMs + (finishedAt - startedAt) / 2 - finishedAt;
+      update();
+      return true;
+    } catch (error) {
+      console.warn(`Time sync from ${base} failed.`, error);
+    }
+  }
+
+  return false;
+}
+
+// /api/ip で現在地のタイムゾーンを取得する（unixtime は予備の時刻）
+async function syncIpInfo() {
+  const startedAt = Date.now();
+  const data = await fetchTimeApiJson('/api/ip');
+  const finishedAt = Date.now();
+  if (!data) return false;
+
+  const timeZone = typeof data.timezone === 'string' ? data.timezone : '';
+  if (timeZone && isValidTimeZone(timeZone) && timeZone !== ipTimeZone) {
+    ipTimeZone = timeZone;
+    buildRows();
+    update();
+  }
+
+  const unixtime = Number(data.unixtime);
+  if (Number.isFinite(unixtime)) {
+    clockOffset = unixtime * 1000 + 500 + (finishedAt - startedAt) / 2 - finishedAt;
+    return true;
+  }
+
+  return false;
+}
+
+async function syncTime() {
+  await syncIpInfo();
+  update();
+
+  await syncZoneTime(localTimeZone || ipTimeZone);
+  await syncNow();
+  update();
 }
 
 function createFormatters(timeZone) {
@@ -243,84 +377,118 @@ function getHour(timeZone, now) {
   return Number.isFinite(hour) ? hour % 24 : 12;
 }
 
+function getZoneLabel(timeZone) {
+  const segment = timeZone.split('/').filter(Boolean).pop() || timeZone;
+  return segment.replace(/_/g, ' ');
+}
+
+function getRowBadges(timeZone) {
+  const badges = [];
+
+  if (ipTimeZone && timeZone === ipTimeZone) {
+    badges.push(t('currentLocation'));
+  }
+  if (localTimeZone && timeZone === localTimeZone && timeZone !== ipTimeZone) {
+    badges.push(t('localBadge'));
+  }
+
+  return badges;
+}
+
+function createRow(timeZone, label) {
+  const badges = getRowBadges(timeZone);
+  const row = document.createElement('li');
+  row.className = badges.length ? 'world-row is-local' : 'world-row';
+  row.dataset.timeZone = timeZone;
+
+  const cityBlock = document.createElement('div');
+  cityBlock.className = 'world-city';
+
+  const icon = document.createElement('span');
+  icon.className = 'world-icon material-symbols-outlined';
+
+  const info = document.createElement('div');
+
+  const nameRow = document.createElement('div');
+  nameRow.className = 'world-city-name-row';
+
+  const name = document.createElement('span');
+  name.className = 'world-name';
+  name.textContent = label;
+
+  const badge = document.createElement('span');
+  badge.className = 'local-badge';
+  badge.textContent = badges.join(' / ');
+  badge.hidden = badges.length === 0;
+
+  nameRow.append(name, badge);
+
+  const date = document.createElement('span');
+  date.className = 'world-date';
+
+  info.append(nameRow, date);
+
+  cityBlock.append(icon, info);
+
+  const timeBlock = document.createElement('div');
+  timeBlock.className = 'world-time-block';
+
+  const time = document.createElement('span');
+  time.className = 'world-time';
+  time.textContent = '--:--:--';
+
+  timeBlock.append(time);
+
+  row.append(cityBlock, timeBlock);
+
+  return row;
+}
+
 function buildRows() {
   list.replaceChildren();
 
-  CITIES.forEach((city) => {
-    const row = document.createElement('li');
-    row.className = city.timeZone === localTimeZone ? 'world-row is-local' : 'world-row';
-    row.dataset.timeZone = city.timeZone;
+  const isListed = (timeZone) => CITIES.some((city) => city.timeZone === timeZone);
 
-    const cityBlock = document.createElement('div');
-    cityBlock.className = 'world-city';
-
-    const icon = document.createElement('span');
-    icon.className = 'world-icon material-symbols-outlined';
-
-    const info = document.createElement('div');
-
-    const nameRow = document.createElement('div');
-    nameRow.className = 'world-city-name-row';
-
-    const name = document.createElement('span');
-    name.className = 'world-name';
-    name.textContent = language === 'en' ? city.en : city.ja;
-
-    const badge = document.createElement('span');
-    badge.className = 'local-badge';
-    badge.textContent = t('localBadge');
-    badge.hidden = city.timeZone !== localTimeZone;
-
-    nameRow.append(name, badge);
-
-    const date = document.createElement('span');
-    date.className = 'world-date';
-
-    info.append(nameRow, date);
-
-    cityBlock.append(icon, info);
-
-    const timeBlock = document.createElement('div');
-    timeBlock.className = 'world-time-block';
-
-    const time = document.createElement('span');
-    time.className = 'world-time';
-    time.textContent = '--:--:--';
-
-    timeBlock.append(time);
-
-    row.append(cityBlock, timeBlock);
-    list.append(row);
-  });
-}
-
-async function syncLocalTimeZone() {
-  try {
-    const data = await fetchFromTimeApi('/api/ip');
-    const timeZone = typeof data.timezone === 'string' ? data.timezone : '';
-    if (!timeZone) throw new Error('Timezone API response did not include a timezone.');
-
-    new Intl.DateTimeFormat(locale, { timeZone });
-    if (timeZone !== localTimeZone) {
-      localTimeZone = timeZone;
-      buildRows();
-      update();
-    }
-
-    return timeZone;
-  } catch (error) {
-    console.warn('Could not detect the current time zone.', error);
+  // 一覧にないタイムゾーンだけ、そのときだけ先頭に追加する
+  if (ipTimeZone && !isListed(ipTimeZone)) {
+    list.append(createRow(ipTimeZone, getZoneLabel(ipTimeZone)));
+  }
+  if (localTimeZone && localTimeZone !== ipTimeZone && !isListed(localTimeZone)) {
+    list.append(createRow(localTimeZone, getZoneLabel(localTimeZone)));
   }
 
-  return localTimeZone;
+  CITIES.forEach((city) => {
+    list.append(createRow(
+      city.timeZone,
+      language === 'en' ? city.en : city.ja
+    ));
+  });
 }
 
 function update() {
   const now = clockNow();
+  const sameTime = sameTimeAsIpZone();
+  const showingIp = sameTime && Boolean(ipTimeZone);
+  const displayZone = showingIp ? ipTimeZone : localTimeZone;
 
-  localZone.textContent = localTimeZone.replace(/_/g, ' ');
-  localTime.textContent = getFormatters(localTimeZone).time.format(now);
-  localDate.textContent = getFormatters(localTimeZone).localDate.format(now);
+  localZoneLabel.textContent = showingIp ? t('currentLocation') : t('yourZone');
+
+  if (displayZone) {
+    localZone.textContent = displayZone.replace(/_/g, ' ');
+    localTime.textContent = getFormatters(displayZone).time.format(now);
+    localDate.textContent = getFormatters(displayZone).localDate.format(now);
+  } else {
+    localZone.textContent = t('unknownZone');
+    localTime.textContent = '--:--:--';
+    localDate.textContent = '';
+  }
+
+  ipClock.hidden = !ipTimeZone || sameTime;
+  if (ipTimeZone && !sameTime) {
+    const ipFormatter = getFormatters(ipTimeZone);
+    ipZone.textContent = ipTimeZone.replace(/_/g, ' ');
+    ipTime.textContent = `${ipFormatter.date.format(now)} ${ipFormatter.time.format(now)}`;
+  }
 
   list.querySelectorAll('.world-row').forEach((row) => {
     const timeZone = row.dataset.timeZone;
@@ -350,7 +518,20 @@ document.querySelectorAll('[data-i18n-aria]').forEach((element) => {
 
 document.title = `${t('title')} | Time Tools`;
 
+function refreshLocalTimeZone() {
+  if (document.visibilityState !== 'visible') return;
+
+  const nextTimeZone = detectTimeZone();
+  if (!nextTimeZone || nextTimeZone === localTimeZone) return;
+
+  localTimeZone = nextTimeZone;
+  buildRows();
+  update();
+}
+
+document.addEventListener('visibilitychange', refreshLocalTimeZone);
+
 buildRows();
 update();
 window.setInterval(update, 1000);
-syncLocalTimeZone().then(syncCityTime);
+syncTime();

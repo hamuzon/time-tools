@@ -790,6 +790,34 @@ input:focus-visible {
   font-size: 0.82rem;
 }
 
+.ip-clock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px 10px;
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(63, 48, 77, 0.12);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.ip-clock[hidden] {
+  display: none;
+}
+
+.ip-clock strong {
+  color: var(--accent-dark);
+  font-weight: 800;
+}
+
+.ip-clock-time {
+  font-weight: 750;
+}
+
 .world-clock-page .world-list {
   max-height: min(54vh, 480px);
   margin-top: 16px;

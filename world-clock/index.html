@@ -29,11 +29,18 @@
         </div>
         <div class="local-clock">
           <p class="local-clock-label">
-            <span data-i18n="yourZone">あなたのタイムゾーン</span>
-            <strong id="local-zone">UTC</strong>
+            <span id="local-zone-label" data-i18n="yourZone">端末時間</span>
+            <strong id="local-zone"></strong>
           </p>
           <p class="local-clock-time" id="local-time">--:--:--</p>
           <p class="local-clock-date" id="local-date"></p>
+          <p class="ip-clock" id="ip-clock" hidden>
+            <span class="ip-clock-label">
+              <span data-i18n="ipLocation">現在地</span>
+              <strong id="ip-zone"></strong>
+            </span>
+            <span class="ip-clock-time" id="ip-time"></span>
+          </p>
         </div>
         <ul class="world-list" id="world-list" aria-label="世界の現在時刻" data-i18n-aria="listLabel"></ul>
       </section>
