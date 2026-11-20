@@ -108,9 +108,9 @@ let intervalId = null;
 let paused = false;
 let completed = false;
 
-let alarmSound = new URLSearchParams(window.location.search).get('alarm') === 'on'
-  ? 'on'
-  : 'off';
+let alarmSound = new URLSearchParams(window.location.search).get('alarm') === 'off'
+  ? 'off'
+  : 'on';
 
 let displayFormat = new URLSearchParams(window.location.search).get('format') === 'units'
   ? 'units'
@@ -492,9 +492,9 @@ function setAlarmSound(value) {
   const url = new URL(window.location.href);
 
   if (alarmSound === 'off') {
-    url.searchParams.delete('alarm');
+    url.searchParams.set('alarm', 'off');
   } else {
-    url.searchParams.set('alarm', 'on');
+    url.searchParams.delete('alarm');
   }
 
   updateUrl(url);

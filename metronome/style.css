@@ -10,6 +10,7 @@
 .beat-indicators {
   min-height: 34px;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 12px;
@@ -96,7 +97,8 @@
   cursor: pointer;
 }
 
-.setting-field select {
+.setting-field select,
+.setting-field input[type="text"] {
   width: 100%;
   min-height: 48px;
   padding: 8px 12px;
@@ -105,6 +107,20 @@
   background: rgba(255, 255, 255, 0.55);
   color: var(--ink);
   font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.custom-meter-field {
+  grid-column: 1 / -1;
+}
+
+.custom-meter-field[hidden] {
+  display: none;
+}
+
+.setting-field input[type="text"].is-invalid {
+  border-color: #c62828;
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.12);
 }
 
 .metronome-page .control-row {
