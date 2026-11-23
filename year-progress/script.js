@@ -36,10 +36,6 @@ const goParameter = languageUrl.searchParams.get('go');
 const goNumber = goParameter !== null && goParameter.trim() !== '' ? Number(goParameter) : NaN;
 const goPercent = Number.isFinite(goNumber) ? Math.min(100, Math.max(0, goNumber)) : null;
 
-if (language !== 'en' && languageUrl.search) {
-  window.history.replaceState(null, '', `${languageUrl.pathname}${languageUrl.hash}`);
-}
-
 const translations = {
   ja: {
     eyebrow: '今年の進捗 / Year Progress',
@@ -47,7 +43,12 @@ const translations = {
     elapsedLabel: '経過',
     untilEnd: '終了まで',
     dayUnit: '日',
-    complete: '今年が終了しました。'
+    complete: '今年が終了しました。',
+    tzLabel: 'タイムゾーンを選択',
+    langLabel: '言語を選択',
+    settings: '設定',
+    selected: '選択中: ',
+    localTime: '現地時間: '
   },
   en: {
     eyebrow: 'Year Progress',
@@ -55,12 +56,27 @@ const translations = {
     elapsedLabel: 'Elapsed',
     untilEnd: 'Ends in',
     dayUnit: 'd',
-    complete: 'This year is over.'
+    complete: 'This year is over.',
+    tzLabel: 'Select Timezone',
+    langLabel: 'Select Language',
+    settings: 'Settings',
+    selected: 'Selected: ',
+    localTime: 'Local time: '
   }
 };
 
-const locale = language === 'en' ? 'en-US' : 'ja-JP';
 const t = (key) => translations[language][key];
+
+const tzController = TimeZoneTools.init({
+  language,
+  labels: {
+    timeZone: t('tzLabel'),
+    language: t('langLabel'),
+    settings: t('settings'),
+    selected: t('selected'),
+    localTime: t('localTime')
+  }
+});
 
 function getTimeApiBases() {
   const hostname = window.location.hostname;
@@ -108,13 +124,13 @@ const progressBar = document.getElementById('progress-bar');
 const progressFill = document.getElementById('progress-fill');
 const periodNote = document.getElementById('period-note');
 
-const longDateFormatter = new Intl.DateTimeFormat(locale, {
+const longDateFormatter = tzController.createFormatter({
   year: 'numeric',
   month: 'long',
   day: 'numeric'
 });
 
-const timeFormatter = new Intl.DateTimeFormat(locale, {
+const timeFormatter = tzController.createFormatter({
   hour: '2-digit',
   minute: '2-digit',
   second: '2-digit',
@@ -163,13 +179,31 @@ function renderTitle(year) {
 
 function update() {
   const now = clockNow();
-  const year = now.getFullYear();
+  const parts = tzController.getParts(now);
+  const year = parts.year;
   renderTitle(year);
 
-  const start = new Date(year, 0, 1, 0, 0, 0, 0);
-  const end = new Date(year + 1, 0, 1, 0, 0, 0, 0);
-  const endOfYear = new Date(year, 11, 31, 23, 59, 59, 0);
-  const total = end.getTime() - start.getTime();
+  const startMs = tzController.wallClockToUtcMs({
+    year,
+    month: 1,
+    day: 1,
+    hour: 0,
+    minute: 0,
+    second: 0,
+    millisecond: 0
+  });
+  const endMs = tzController.wallClockToUtcMs({
+    year: year + 1,
+    month: 1,
+    day: 1,
+    hour: 0,
+    minute: 0,
+    second: 0,
+    millisecond: 0
+  });
+  const endOfYearMs = endMs - 1000;
+  const total = endMs - startMs;
+  const nowMs = now.getTime();
 
   let remainingMs;
   let elapsedPercent;
@@ -178,8 +212,8 @@ function update() {
     elapsedPercent = goPercent;
     remainingMs = ((100 - goPercent) / 100) * total;
   } else {
-    const elapsedMs = Math.min(total, Math.max(0, now.getTime() - start.getTime()));
-    remainingMs = Math.max(end.getTime() - now.getTime(), 0);
+    const elapsedMs = Math.min(total, Math.max(0, nowMs - startMs));
+    remainingMs = Math.max(endMs - nowMs, 0);
     elapsedPercent = total > 0 ? (elapsedMs / total) * 100 : 0;
   }
 
@@ -196,8 +230,10 @@ function update() {
   completionMessage.textContent = isComplete ? t('complete') : '';
 
   periodNote.textContent = language === 'ja'
-    ? `${formatDateTime(start)} 〜 ${formatDateTime(endOfYear)}`
-    : `${formatDateTime(start)} – ${formatDateTime(endOfYear)}`;
+    ? `${formatDateTime(new Date(startMs))} 〜 ${formatDateTime(new Date(endOfYearMs))}`
+    : `${formatDateTime(new Date(startMs))} – ${formatDateTime(new Date(endOfYearMs))}`;
+
+  tzController.updateDisplay(now);
 }
 
 document.querySelectorAll('[data-i18n]').forEach((element) => {

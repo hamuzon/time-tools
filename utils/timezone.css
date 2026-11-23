@@ -1,0 +1,193 @@
+/* Shared timezone / language settings UI for the progress pages. */
+
+.site-header {
+  position: relative;
+}
+
+.header-controls {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.tz-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 240px;
+  min-width: 0;
+  padding: 6px 12px;
+  border: 1px solid var(--line, rgba(63, 48, 77, 0.12));
+  border-radius: 999px;
+  background: var(--glass-strong, rgba(255, 255, 255, 0.8));
+  color: var(--ink, #292431);
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.3;
+  cursor: default;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.tz-chip .chip-icon {
+  flex: 0 0 auto;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--accent, #6d3fc0);
+}
+
+.tz-chip #tzHeaderName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink, #292431);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.settings-btn:hover {
+  border-color: var(--line, rgba(63, 48, 77, 0.12));
+  background: var(--glass-strong, rgba(255, 255, 255, 0.8));
+}
+
+.settings-btn .material-symbols-outlined {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.tz-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 50;
+  width: min(360px, calc(100vw - 48px));
+  max-height: min(70vh, 540px);
+  padding: 16px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 20px;
+  background: var(--glass-strong, rgba(255, 255, 255, 0.9));
+  -webkit-backdrop-filter: blur(22px);
+  backdrop-filter: blur(22px);
+  box-shadow: var(--shadow, 0 20px 60px rgba(89, 61, 110, 0.18));
+  text-align: left;
+  scrollbar-width: thin;
+}
+
+.tz-panel[hidden] {
+  display: none;
+}
+
+.panel-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  color: var(--accent-dark, #5129a0);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+
+.panel-label .panel-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.tz-panel select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line, rgba(63, 48, 77, 0.12));
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--ink, #292431);
+  font: inherit;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+
+.tz-panel select:focus-visible {
+  outline: 3px solid rgba(109, 63, 192, 0.58);
+  outline-offset: 3px;
+}
+
+.panel-detail {
+  margin-top: 10px;
+  color: var(--muted, #625a69);
+  font-size: 0.72rem;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.panel-detail b {
+  color: var(--ink, #292431);
+}
+
+.panel-zone-id {
+  opacity: 0.72;
+}
+
+.panel-divider {
+  margin: 14px 0;
+  border: none;
+  border-top: 1px solid var(--line, rgba(63, 48, 77, 0.12));
+}
+
+@media (max-width: 600px) {
+  .tz-chip {
+    max-width: 42vw;
+    padding: 5px 10px;
+    font-size: 0.68rem;
+  }
+
+  .settings-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .tz-panel {
+    width: min(340px, calc(100vw - 36px));
+    padding: 14px;
+    border-radius: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tz-panel select {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .tz-chip {
+    max-width: 40vw;
+  }
+
+  .tz-panel {
+    width: calc(100vw - 28px);
+    right: -6px;
+  }
+}
