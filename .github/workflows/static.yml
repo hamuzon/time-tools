@@ -90,8 +90,8 @@ jobs:
           for attempt in $(seq 1 30); do
             count=$(gh api \
               "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" \
-              --jq '[.artifacts[] | select(.name == "github-pages")] | length')
-            if [ "$count" -gt 0 ]; then
+              --jq '[.artifacts[] | select(.name == "github-pages")] | length' 2>/dev/null || echo 0)
+            if [ "${count:-0}" -gt 0 ]; then
               echo "github-pages artifact is available (attempt ${attempt})."
               exit 0
             fi
