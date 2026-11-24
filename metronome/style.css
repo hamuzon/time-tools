@@ -125,6 +125,10 @@
 
 .metronome-page .control-row {
   margin-top: 6px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .metronome-page .control-button {
@@ -136,8 +140,13 @@
     grid-template-columns: 1fr;
     gap: 18px;
   }
-
+  .metronome-page .control-row {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
   .metronome-page .control-button {
     width: 100%;
+    max-width: 300px;
   }
 }
