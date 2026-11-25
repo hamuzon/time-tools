@@ -318,6 +318,35 @@ input:focus-visible {
   letter-spacing: 0.01em;
 }
 
+.current-clock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px 8px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 16px auto 0;
+  padding: 8px 16px;
+  border: 1px solid rgba(109, 63, 192, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+.current-clock strong {
+  color: var(--accent-dark);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
 .completion-message {
   margin: 16px 0 0;
   padding: 12px 14px;

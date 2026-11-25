@@ -47,7 +47,8 @@ const translations = {
     langLabel: '言語を選択',
     settings: '設定',
     selected: '選択中: ',
-    localTime: '現地時間: '
+    localTime: '現地時間: ',
+    currentTime: '現在時刻'
   },
   en: {
     eyebrow: 'Day Progress',
@@ -59,7 +60,8 @@ const translations = {
     langLabel: 'Select Language',
     settings: 'Settings',
     selected: 'Selected: ',
-    localTime: 'Local time: '
+    localTime: 'Local time: ',
+    currentTime: 'Current time'
   }
 };
 
@@ -117,6 +119,7 @@ async function syncTime() {
 const pageTitle = document.getElementById('page-title');
 const percentDisplay = document.getElementById('percent-value');
 const countdownDisplay = document.getElementById('countdown-value');
+const currentTimeDisplay = document.getElementById('current-time-value');
 const completionMessage = document.getElementById('completion-message');
 const progressBar = document.getElementById('progress-bar');
 const progressFill = document.getElementById('progress-fill');
@@ -134,6 +137,28 @@ const timeFormatter = tzController.createFormatter({
   second: '2-digit',
   hourCycle: 'h23'
 });
+
+const clockFormatter = tzController.createFormatter(language === 'ja'
+  ? {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hourCycle: 'h23'
+    }
+  : {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short',
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
 
 const weekdayFormatter = tzController.createFormatter({
   weekday: 'short'
@@ -231,6 +256,8 @@ function update() {
 
   countdownDisplay.textContent = formatCountdown(remainingMs);
 
+  if (currentTimeDisplay) currentTimeDisplay.textContent = clockFormatter.format(now);
+
   const isComplete = remainingMs <= 0;
   completionMessage.hidden = !isComplete;
   completionMessage.textContent = isComplete ? t('complete') : '';
@@ -249,6 +276,18 @@ document.querySelectorAll('[data-i18n]').forEach((element) => {
 
 update();
 window.setInterval(update, 1000);
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) update();
+});
+window.addEventListener('focus', update);
+window.addEventListener('pageshow', update);
+
+TimeZoneTools.watchBrowserTimeZone(() => {
+  if (!new URLSearchParams(window.location.search).has('tz')) {
+    window.location.reload();
+  }
+});
 
 syncTime();
 window.setInterval(syncTime, 10 * 60 * 1000);

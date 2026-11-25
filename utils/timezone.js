@@ -33,6 +33,30 @@
     }
   }
 
+  // Calls `callback` when the device time zone changes while the page stays
+  // open (for example after the OS time zone is changed and the tab regains
+  // focus). Returns a function that checks immediately.
+  function watchBrowserTimeZone(callback) {
+    let lastTimeZone = getBrowserTimeZone();
+
+    function check() {
+      const timeZone = getBrowserTimeZone();
+      if (!timeZone || timeZone === lastTimeZone) return false;
+
+      lastTimeZone = timeZone;
+      if (typeof callback === 'function') callback(timeZone);
+      return true;
+    }
+
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) check();
+    });
+    global.addEventListener('focus', check);
+    global.addEventListener('pageshow', check);
+
+    return check;
+  }
+
   function getCityDisplayName(timeZone, isJa) {
     if (isJa && cityJa[timeZone]) return cityJa[timeZone];
 
@@ -456,6 +480,7 @@
     init,
     isSupportedTimeZone,
     getBrowserTimeZone,
+    watchBrowserTimeZone,
     getCityDisplayName,
     getPartsInZone,
     getOffsetMsAt,
