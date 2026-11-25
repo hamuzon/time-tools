@@ -250,7 +250,9 @@ function update() {
 
   countdownDisplay.textContent = formatCountdown(remainingMs);
 
-  if (currentTimeDisplay) currentTimeDisplay.textContent = clockFormatter.format(now);
+  if (currentTimeDisplay) {
+    currentTimeDisplay.textContent = clockFormatter.format(now);
+  }
 
   const isComplete = remainingMs <= 0;
   completionMessage.hidden = !isComplete;
@@ -283,5 +285,17 @@ TimeZoneTools.watchBrowserTimeZone(() => {
   }
 });
 
+const TIME_SYNC_INTERVAL_MS = 15 * 60 * 1000;
+
+function scheduleTimeSync() {
+  const now = Date.now();
+  const delay = TIME_SYNC_INTERVAL_MS - (now % TIME_SYNC_INTERVAL_MS);
+
+  window.setTimeout(() => {
+    syncTime();
+    window.setInterval(syncTime, TIME_SYNC_INTERVAL_MS);
+  }, delay);
+}
+
 syncTime();
-window.setInterval(syncTime, 10 * 60 * 1000);
+scheduleTimeSync();

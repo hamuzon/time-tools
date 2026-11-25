@@ -33,9 +33,6 @@
     }
   }
 
-  // Calls `callback` when the device time zone changes while the page stays
-  // open (for example after the OS time zone is changed and the tab regains
-  // focus). Returns a function that checks immediately.
   function watchBrowserTimeZone(callback) {
     let lastTimeZone = getBrowserTimeZone();
 
